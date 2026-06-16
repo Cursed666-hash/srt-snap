@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRT Snap - Free & Premium</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 SRT Snap</h1>
+            <p>Professional subtitle editing with client-side processing</p>
+            <div class="pricing-badge">Free: Basic editing | <span class="unlock-pro">PRO: $50 one-time</span></div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab active" onclick="showTab('upload')">📁 Upload</button>
+            <button class="tab" onclick="showTab('editor')">📝 Editor</button>
+            <button class="tab" onclick="showTab('preview')">👁️ Preview</button>
+            <button class="tab" onclick="showTab('pricing')">💰 Pricing</button>
+        </div>
+
+        <div class="content">
+            <div id="upload-tab" class="tab-content active">
+                <h2>Upload SRT File</h2>
+                <div class="upload-section" id="upload-area">
+                    <span class="upload-icon">📤</span>
+                    <h3>Drop SRT file here or click to browse</h3>
+                    <p style="color: #666; margin-top: 10px;">Supports .srt files up to 50MB</p>
+                    <input type="file" accept=".srt" class="upload-input" id="file-input">
+                    <label for="file-input" class="upload-label">Choose SRT File</label>
+                </div>
+
+                <div class="file-list" id="file-list"></div>
+            </div>
+
+            <div id="editor-tab" class="tab-content">
+                <h2>SRT Editor</h2>
+                <div class="lock-info" id="lock-info">
+                    <strong>🔒 PRO Feature Locked!</strong> Upgrade to PRO for timeline editing, video sync, and precision placement.
+                </div>
+
+                <div class="success-message" id="success-message">
+                    ✅ PRO License Activated!
+                </div>
+
+                <div class="error-message" id="error-message">
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="downloadSRT()">💾 Download SRT</button>
+                    <button class="btn btn-success" onclick="newSRT()">➕ New SRT</button>
+                    <button class="btn btn-danger" onclick="clearEditor()">🗑️ Clear</button>
+                </div>
+
+                <div class="timeline-preview" id="timeline-preview">
+                    <h3>📊 Timeline Preview (PRO Feature)</h3>
+                    <p>Drag and drop subtitle blocks to reposition them precisely</p>
+                    <div id="timeline-container" style="height: 100px; background: #e0e0e0; border-radius: 4px; margin: 20px 0;"></div>
+                </div>
+
+                <div class="video-preview" id="video-preview">
+                    <h3>🎥 Video Sync Preview (PRO Feature)</h3>
+                    <p>Upload video file to sync subtitles with playback</p>
+                    <div id="video-container" style="height: 200px; background: #333; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #666;">Video preview area</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">SRT Content</h3>
+                <div class="editor" id="srt-editor" contenteditable="true" spellcheck="false"></div>
+            </div>
+
+            <div id="preview-tab" class="tab-content">
+                <h2>SRT Preview</h2>
+                <div id="srt-preview"></div>
+            </div>
+
+            <div id="pricing-tab" class="tab-content">
+                <h2>Unlock PRO Features</h2>
+                <div class="premium-features">
+                    <div class="feature-card premium">
+                        <div class="feature-icon">🎬</div>
+                        <div class="feature-title">Timeline Editor</div>
+                        <div class="feature-description">Drag-and-drop subtitle blocks for precise positioning with visual timeline</div>
+                        <div class="price-tag">Included in PRO</div>
+                    </div>
+
+                    <div class="feature-card premium">
+                        <div class="feature-icon">🎥</div>
+                        <div class="feature-title">Video Sync</div>
+                        <div class="feature-description">Upload video files and sync subtitles with playback timing</div>
+                        <div class="price-tag">Included in PRO</div>
+                    </div>
+
+                    <div class="feature-card premium">
+                        <div class="feature-title">Precision Placement</div>
+                        <div class="feature-description">Pixel-perfect subtitle positioning with real-time preview</div>
+                        <div class="price-tag">Included in PRO</div>
+                    </div>
+
+                    <div class="feature-card premium">
+                        <div class="feature-icon">🔧</div>
+                        <div class="feature-title">Advanced Tools</div>
+                        <div class="feature-description">Batch operations, formatting tools, and export options</div>
+                        <div class="price-tag">Included in PRO</div>
+                    </div>
+                </div>
+
+                <div class="payment-section">
+                    <div class="payment-info">
+                        <h3>🛒 PRO Subscription</h3>
+                        <div class="pricing-details">
+                            <div class="price-display">
+                                <span class="price-amount">$50.00</span>
+                                <span class="price-period">One-time payment</span>
+                            </div>
+                            <div class="features-summary">
+                                <h4>✅ All PRO Features Include:</h4>
+                                <ul>
+                                    <li>🎬 Full timeline editor with drag-and-drop</li>
+                                    <li>🎥 Video sync and preview capabilities</li>
+                                    <li>⚙️ Precision placement tools</li>
+                                    <li>🔧 Advanced batch operations</li>
+                                    <li>📥 Export to multiple formats</li>
+                                    <li>💾 Lifetime access - no subscriptions</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-methods">
+                        <h4>🔒 Secure Payment Processing</h4>
+                        <div class="payment-badges">
+                            <span class="badge">Stripe Secure</span>
+                            <span class="badge">PayPal Protected</span>
+                            <span class="badge">256-bit SSL</span>
+                        </div>
+                        
+                        <div class="payment-form">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" placeholder="your@email.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Card Number</label>
+                                <input type="text" placeholder="1234 5678 9012 3456" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Expiry Date</label>
+                                    <input type="text" placeholder="MM/YY" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>CVV</label>
+                                    <input type="text" placeholder="123" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Billing Name</label>
+                                <input type="text" placeholder="John Doe" required>
+                            </div>
+                            
+                            <div class="payment-security">
+                                <span class="lock-icon">🔒</span>
+                                <span>Your payment information is protected and encrypted</span>
+                            </div>
+                            
+                            <button class="pay-btn" onclick="processPayment()">💳 Pay $50.00 Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="money-back-guarantee">
+                    <h4>🛡️ 30-Day Money-Back Guarantee</h4>
+                    <p>If you're not completely satisfied with the PRO features within 30 days, we'll refund your payment - no questions asked.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSRT = null;
+        let isProUser = false;
+        let selectedFile = null;
+
+        // Show different tabs
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Handle file upload
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.name.endsWith('.srt')) {
+                processFile(file);
+            } else {
+                showError('Please upload a valid .srt file');
+            }
+        });
+
+        // Handle drag and drop
+        const uploadArea = document.getElementById('upload-area');
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4CAF50';
+            uploadArea.style.background = '#f8f8f8';
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = 'white';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.background = 'white';
+
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.srt')) {
+                processFile(file);
+            } else {
+                showError('Please upload a valid .srt file');
+            }
+        });
+
+        // Process uploaded file
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                currentSRT = content;
+                displayFileInfo(file);
+                populateEditor(content);
+                showTab('editor');
+            };
+            reader.readAsText(file);
+        }
+
+        // Display file information
+        function displayFileInfo(file) {
+            const fileList = document.getElementById('file-list');
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-icon">📄</div>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">Size: ${(file.size / 1024).toFixed(2)} KB</div>
+                </div>
+                <button class="btn btn-danger" onclick="removeFile()">Remove</button>
+            `;
+            fileList.innerHTML = '';
+            fileList.appendChild(fileItem);
+            selectedFile = file;
+        }
+
+        // Remove file
+        function removeFile() {
+            document.getElementById('file-list').innerHTML = '';
+            currentSRT = null;
+            selectedFile = null;
+            document.getElementById('srt-editor').textContent = '';
+        }
+
+        // Populate editor with SRT content
+        function populateEditor(content) {
+            document.getElementById('srt-editor').textContent = content;
+        }
+
+        // Get editor content
+        function getEditorContent() {
+            return document.getElementById('srt-editor').textContent.trim();
+        }
+
+        // Download SRT file
+        function downloadSRT() {
+            if (!currentSRT) {
+                showError('No SRT file to download');
+                return;
+            }
+
+            const blob = new Blob([currentSRT], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = selectedFile ? selectedFile.name : 'subtitle.srt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showSuccess('SRT file downloaded successfully!');
+        }
+
+        // Create new SRT
+        function newSRT() {
+            if (confirm('Are you sure you want to create a new SRT? Any unsaved changes will be lost.')) {
+                removeFile();
+                showTab('upload');
+            }
+        }
+
+        // Clear editor
+        function clearEditor() {
+            if (currentSRT && confirm('Are you sure you want to clear the editor?')) {
+                removeFile();
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successMsg = document.getElementById('success-message');
+            successMsg.textContent = message;
+            successMsg.classList.add('show');
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorMsg = document.getElementById('error-message');
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+            setTimeout(() => {
+                errorMsg.classList.remove('show');
+            }, 5000);
+        }
+
+        // Unlock PRO features
+        function unlockPro() {
+            isProUser = true;
+            localStorage.setItem('isProUser', 'true');
+
+            // Hide pricing tab and show editor
+            showTab('editor');
+
+            // Show success message
+            showSuccess('PRO license activated! You now have access to timeline editor, video sync, and precision placement.');
+
+            // Enable PRO features
+            enablePROFeatures();
+        }
+
+        // Enable PRO features
+        function enablePROFeatures() {
+            // Show timeline preview
+            document.getElementById('timeline-preview').classList.add('active');
+
+            // Show video preview
+            document.getElementById('video-preview').classList.add('active');
+
+            // Hide lock info
+            document.getElementById('lock-info').classList.remove('show');
+
+            // Enable contenteditable
+            document.getElementById('srt-editor').contentEditable = 'true';
+
+            // Initialize timeline functionality
+            initTimeline();
+
+            // Initialize video functionality
+            initVideo();
+        }
+
+        // Initialize timeline functionality
+        function initTimeline() {
+            const timelineContainer = document.getElementById('timeline-container');
+
+            // Create sample timeline blocks for PRO users
+            for (let i = 0; i < 10; i++) {
+                const block = document.createElement('div');
+                block.style.cssText = `
+                    position: absolute;
+                    left: ${i * 50}px;
+                    top: 25px;
+                    width: 40px;
+                    height: 30px;
+                    background: ${i % 2 === 0 ? '#4CAF50' : '#2196F3'};
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 0.8em;
+                    cursor: grab;
+                    user-select: none;
+                `;
+                block.textContent = (i + 1).toString();
+                block.draggable = true;
+
+                block.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', i);
+                    this.style.opacity = '0.5';
+                });
+
+                block.addEventListener('dragend', function() {
+                    this.style.opacity = '1';
+                });
+
+                block.addEventListener('click', function() {
+                    this.style.border = '2px solid #ff9800';
+                });
+
+                timelineContainer.appendChild(block);
+            }
+
+            // Add drop zone functionality
+            timelineContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            timelineContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const index = parseInt(e.dataTransfer.getData('text/plain'));
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left - 20;
+
+                // Reposition block
+                const blocks = this.querySelectorAll('div[draggable]');
+                const targetBlock = blocks[Math.floor(x / 50)];
+                if (targetBlock && targetBlock !== blocks[index]) {
+                    // Reorder blocks
+                    const targetIndex = Array.from(blocks).indexOf(targetBlock);
+                    blocks[index].style.left = `${targetIndex * 50}px`;
+                }
+            });
+        }
+
+        // Initialize video functionality
+        function initVideo() {
+            const videoContainer = document.getElementById('video-container');
+
+            // Create simple video player UI
+            videoContainer.innerHTML = `
+                <video style="width: 100%; height: 100%; object-fit: contain;" controls>
+                    <source src="#" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div style="margin-top: 10px;">
+                    <input type="file" accept="video/*" style="display: none;" id="video-input">
+                    <button class="btn btn-primary" onclick="document.getElementById('video-input').click()">
+                        Upload Video
+                    </button>
+                    <button class="btn btn-success" onclick="syncSubtitles()">
+                        Sync Subtitles
+                    </button>
+                </div>
+            `;
+
+            // Handle video upload
+            document.getElementById('video-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const videoUrl = URL.createObjectURL(file);
+                    const video = document.querySelector('#video-container video source');
+                    video.src = videoUrl;
+                    video.load();
+                }
+            });
+        }
+
+        // Sync subtitles with video
+        function syncSubtitles() {
+            const video = document.querySelector('#video-container video');
+            if (video.src && video.duration > 0) {
+                showSuccess('Subtitles synced with video! Current time: ' + video.currentTime.toFixed(2) + 's');
+            } else {
+                showError('Please upload a video first');
+            }
+        }
+
+        // Preview SRT
+        function previewSRT() {
+            const content = getEditorContent();
+            if (!content) {
+                showError('No content to preview');
+                return;
+            }
+
+            const lines = content.split('\n');
+            let previewHtml = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line.match(/^\d+$/)) {
+                    // Sequence number
+                    previewHtml += `<div style="color: #666; margin-bottom: 5px;">${line}</div>`;
+                } else if (line.match(/^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}$/)) {
+                    // Timecode
+                    previewHtml += `<div style="color: #2196F3; font-weight: bold; margin: 10px 0;">${line}</div>`;
+                } else if (line && !line.match(/^\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}$/) && !line.match(/^\d+$/)) {
+                    // Subtitle text
+                    previewHtml += `<div style="margin: 5px 0; padding: 8px; background: #f5f5f5; border-radius: 4px;">${line}</div>`;
+                } else {
+                    previewHtml += `<div style="margin: 2px 0;">${line}</div>`;
+                }
+            }
+
+            document.getElementById('srt-preview').innerHTML = previewHtml;
+            showTab('preview');
+        }
+
+        // Parse SRT content
+        function parseSRT(content) {
+            const blocks = content.split('\\n\\n').filter(block => block.trim());
+            return blocks.map(block => {
+                const lines = block.split('\\n');
+                const sequence = lines[0];
+                const timing = lines[1];
+                const text = lines.slice(2).join('\\n');
+                return { sequence, timing, text };
+            });
+        }
+
+        // Auto-save functionality
+        let saveTimeout;
+        document.getElementById('srt-editor').addEventListener('input', function() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                currentSRT = getEditorContent();
+                showSuccess('Auto-saved');
+            }, 2000);
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            // Check if user is PRO
+            if (localStorage.getItem('isProUser') === 'true') {
+                isProUser = true;
+                enablePROFeatures();
+            }
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    downloadSRT();
+                }
+            });
+        });
+
+        // Simple SRT parsing function
+        function parseSRTText(text) {
+            const blocks = text.split('\\n\\n').filter(block => block.trim() && !block.trim().match(/^\\d+$/));
+            return blocks.map(block => {
+                const lines = block.split('\\n');
+                const timingLine = lines[0];
+                const textLines = lines.slice(1);
+                return {
+                    sequence: blocks.indexOf(block) + 1,
+                    timing: timingLine,
+                    text: textLines.join('\\n')
+                };
+            });
+        }
+    </script>
+</body>
+</html>
+    

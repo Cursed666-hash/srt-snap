@@ -1,0 +1,32 @@
+{
+  "name": "srt-file-editor",
+  "version": "1.0.0",
+  "description": "A client-side SRT file editor with freemium model - Free basic editing, PRO features: timeline editor, video sync, precision placement ($50 one-time)",
+  "main": "index.html",
+  "scripts": {
+    "dev": "echo \"Open index.html in your browser to start the SRT editor\"",
+    "test": "echo \"No tests configured\""
+  },
+  "keywords": [
+    "srt",
+    "subtitle",
+    "editor",
+    "video",
+    "subtitles",
+    "timeline",
+    "multimedia"
+  ],
+  "author": "SRT Editor",
+  "license": "Proprietary",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/example/srt-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/example/srt-editor/issues"
+  },
+  "homepage": "https://github.com/example/srt-editor#readme",
+  "devDependencies": {
+    "live-server": "^1.2.0"
+  }
+}
