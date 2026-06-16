@@ -119,8 +119,8 @@ const AuthSystem = (() => {
     function isAdminUser(email) {
         try {
             // Check if ADMIN_CONFIG exists (from secret-config.js)
-            if (typeof ADMIN_CONFIG !== 'undefined' && ADMIN_CONFIG) {
-                return email.toLowerCase().trim() === (ADMIN_CONFIG.email || '').toLowerCase().trim();
+            if (window.ADMIN_CONFIG) {
+                return email.toLowerCase().trim() === (window.ADMIN_CONFIG.email || '').toLowerCase().trim();
             }
         } catch { }
         return false;
@@ -128,9 +128,9 @@ const AuthSystem = (() => {
 
     function checkAdminCredentials(username, password) {
         try {
-            if (typeof ADMIN_CONFIG !== 'undefined' && ADMIN_CONFIG) {
-                return username === ADMIN_CONFIG.username &&
-                       password === ADMIN_CONFIG.password;
+            if (window.ADMIN_CONFIG) {
+                return username === window.ADMIN_CONFIG.username &&
+                       password === window.ADMIN_CONFIG.password;
             }
         } catch { }
         return false;
@@ -138,8 +138,8 @@ const AuthSystem = (() => {
 
     function getAdminProStatus() {
         try {
-            if (typeof ADMIN_CONFIG !== 'undefined' && ADMIN_CONFIG) {
-                return ADMIN_CONFIG.isPro === true;
+            if (window.ADMIN_CONFIG) {
+                return window.ADMIN_CONFIG.isPro === true;
             }
         } catch { }
         return false;
@@ -192,8 +192,8 @@ const AuthSystem = (() => {
             // Check admin credentials first (from gitignored secret-config.js)
             if (checkAdminCredentials(email, password)) {
                 // Admin login — use admin email for session
-                const adminEmail = (typeof ADMIN_CONFIG !== 'undefined' && ADMIN_CONFIG)
-                    ? ADMIN_CONFIG.email.toLowerCase().trim()
+                const adminEmail = window.ADMIN_CONFIG
+                    ? window.ADMIN_CONFIG.email.toLowerCase().trim()
                     : email;
                 saveSession(adminEmail);
                 const adminPro = getAdminProStatus();
@@ -332,16 +332,16 @@ const AuthSystem = (() => {
             try {
                 const session = getSession();
                 if (!session || !session.email) return false;
-                if (typeof ADMIN_CONFIG === 'undefined' || !ADMIN_CONFIG) return false;
-                return session.email.toLowerCase().trim() === ADMIN_CONFIG.email.toLowerCase().trim();
+                if (!window.ADMIN_CONFIG) return false;
+                return session.email.toLowerCase().trim() === window.ADMIN_CONFIG.email.toLowerCase().trim();
             } catch { return false; }
         },
 
         // Get admin Pro toggle status
         getAdminProToggle() {
             try {
-                if (typeof ADMIN_CONFIG === 'undefined' || !ADMIN_CONFIG) return null;
-                return ADMIN_CONFIG.isPro === true;
+                if (!window.ADMIN_CONFIG) return null;
+                return window.ADMIN_CONFIG.isPro === true;
             } catch { return null; }
         },
 
@@ -367,12 +367,12 @@ const AuthSystem = (() => {
             const session = getSession();
             if (session && session.email) {
                 try {
-                    if (typeof ADMIN_CONFIG !== 'undefined' && ADMIN_CONFIG &&
-                        session.email.toLowerCase().trim() === ADMIN_CONFIG.email.toLowerCase().trim()) {
+                    if (window.ADMIN_CONFIG &&
+                        session.email.toLowerCase().trim() === window.ADMIN_CONFIG.email.toLowerCase().trim()) {
                         const override = localStorage.getItem('srtSnap_adminProOverride');
                         if (override === 'true') return true;
                         if (override === 'false') return false;
-                        return ADMIN_CONFIG.isPro === true;
+                        return window.ADMIN_CONFIG.isPro === true;
                     }
                 } catch { }
             }

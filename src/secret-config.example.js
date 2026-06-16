@@ -19,3 +19,8 @@ const ADMIN_CONFIG = {
     // Email for verification key delivery
     email: 'your-email@example.com'
 };
+
+// Assign to window so it survives if the previous ADMIN_CONFIG fallback exists
+if (typeof window !== 'undefined') {
+    window.ADMIN_CONFIG = ADMIN_CONFIG;
+}
