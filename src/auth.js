@@ -384,8 +384,7 @@ const AuthSystem = (() => {
             // Check 2: Legacy localStorage flag
             if (localStorage.getItem('isProUser') === 'true') return true;
 
-            // Check 3: Session must exist
-            const session = getSession();
+            // Check 3: Session must exist (re-use session from check 0)
             if (!session) return false;
 
             // Check 4: If session email matches a Pro license
