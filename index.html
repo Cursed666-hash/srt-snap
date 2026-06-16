@@ -74,6 +74,22 @@
                 </div>
 
                 <div class="file-list" id="file-list"></div>
+
+                <!-- Basic SRT Editor (Free users) -->
+                <div class="editor-section" style="margin-top: 20px; display: none;" id="srt-editor-section">
+                    <div class="editor-header">
+                        <h3>📝 SRT Editor</h3>
+                        <div class="editor-actions">
+                            <button class="btn btn-sm" onclick="clearEditorContent()">🗑️ Clear</button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadSRT()">💾 Export .srt</button>
+                        </div>
+                    </div>
+                    <textarea id="srt-editor" class="srt-editor-textarea" spellcheck="false" placeholder="Paste or edit your SRT content here...
+Example:
+1
+00:00:01,000 --> 00:00:04,000
+Hello, welcome!</textarea>
+                </div>
             </div>
 
             <!-- ==========================================
@@ -670,17 +686,27 @@
             document.getElementById('file-list').innerHTML = '';
             currentSRT = null;
             selectedFile = null;
-            document.getElementById('srt-editor').textContent = '';
+            const editor = document.getElementById('srt-editor');
+            if (editor) editor.value = '';
         }
 
         // Populate editor with SRT content
         function populateEditor(content) {
-            document.getElementById('srt-editor').textContent = content;
+            const editor = document.getElementById('srt-editor');
+            if (editor) editor.value = content;
         }
 
         // Get editor content
         function getEditorContent() {
-            return document.getElementById('srt-editor').textContent.trim();
+            const editor = document.getElementById('srt-editor');
+            return editor ? editor.value.trim() : '';
+        }
+
+        // Clear the SRT editor content
+        function clearEditorContent() {
+            const editor = document.getElementById('srt-editor');
+            if (editor) editor.value = '';
+            showSuccess('Editor cleared');
         }
 
         // Download SRT file
@@ -911,15 +937,18 @@
             });
         }
 
-        // Auto-save functionality
+        // Auto-save functionality (only if srt-editor exists)
         let saveTimeout;
-        document.getElementById('srt-editor').addEventListener('input', function() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                currentSRT = getEditorContent();
-                showSuccess('Auto-saved');
-            }, 2000);
-        });
+        const srtEditor = document.getElementById('srt-editor');
+        if (srtEditor) {
+            srtEditor.addEventListener('input', function() {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    currentSRT = getEditorContent();
+                    showSuccess('Auto-saved');
+                }, 2000);
+            });
+        }
 
         // Initialize on page load
         window.addEventListener('load', function() {

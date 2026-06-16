@@ -2207,6 +2207,64 @@ a {
     background: white;
 }
 
+/* Basic SRT Editor (Upload tab) */
+.srt-editor-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 14px 16px;
+    border: 1px solid var(--c-light-2);
+    border-radius: var(--radius-sm);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Cascadia Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    resize: vertical;
+    background: var(--c-light);
+    color: var(--c-dark);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    margin-top: 8px;
+}
+
+.srt-editor-textarea:focus {
+    outline: none;
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+    background: white;
+}
+
+/* Editor section header in upload tab */
+.editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.editor-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--c-dark);
+}
+
+.editor-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--c-light-2);
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-sm:hover {
+    background: var(--c-light);
+}
+
 /* Toast Container */
 .editor-toast-container {
     position: fixed;
