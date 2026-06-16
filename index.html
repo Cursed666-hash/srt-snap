@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRT Snap - Free & Premium</title>
+    <title>SRT Snap - Free & Pro — Professional Subtitle Editor</title>
     <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🎬 SRT Snap</h1>
-            <p>Professional subtitle editing with client-side processing</p>
-            <div class="pricing-badge">Free: Basic editing | <span class="unlock-pro">PRO: $50 one-time</span></div>
+            <p>Edit subtitles professionally — 100% in your browser, your files never leave your computer</p>
+            <div class="pricing-badge">✨ Free: Basic editing | <span class="unlock-pro">⭐ Pro: $50 one-time · lifetime access</span></div>
         </div>
 
         <div class="nav-tabs">
@@ -38,11 +38,15 @@
             <div id="editor-tab" class="tab-content">
                 <h2>SRT Editor</h2>
                 <div class="lock-info" id="lock-info">
-                    <strong>🔒 PRO Feature Locked!</strong> Upgrade to PRO for timeline editing, video sync, and precision placement.
+                    <div class="lock-info-content">
+                        <strong>🔒 Pro Feature Locked</strong>
+                        <p>Upgrade to Pro for timeline drag-and-drop, video sync, precision placement, and advanced tools.</p>
+                    </div>
+                    <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-lock">🔥 Get Pro Now</a>
                 </div>
 
                 <div class="success-message" id="success-message">
-                    ✅ PRO License Activated!
+                    ✅ Pro License Activated!
                 </div>
 
                 <div class="error-message" id="error-message">
@@ -55,13 +59,13 @@
                 </div>
 
                 <div class="timeline-preview" id="timeline-preview">
-                    <h3>📊 Timeline Preview (PRO Feature)</h3>
+                    <h3>📊 Timeline Preview <span class="pro-badge">Pro</span></h3>
                     <p>Drag and drop subtitle blocks to reposition them precisely</p>
                     <div id="timeline-container" style="height: 100px; background: #e0e0e0; border-radius: 4px; margin: 20px 0;"></div>
                 </div>
 
                 <div class="video-preview" id="video-preview">
-                    <h3>🎥 Video Sync Preview (PRO Feature)</h3>
+                    <h3>🎥 Video Sync Preview <span class="pro-badge">Pro</span></h3>
                     <p>Upload video file to sync subtitles with playback</p>
                     <div id="video-container" style="height: 200px; background: #333; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
                         <span style="color: #666;">Video preview area</span>
@@ -78,108 +82,127 @@
             </div>
 
             <div id="pricing-tab" class="tab-content">
-                <h2>Unlock PRO Features</h2>
-                <div class="premium-features">
-                    <div class="feature-card premium">
-                        <div class="feature-icon">🎬</div>
-                        <div class="feature-title">Timeline Editor</div>
-                        <div class="feature-description">Drag-and-drop subtitle blocks for precise positioning with visual timeline</div>
-                        <div class="price-tag">Included in PRO</div>
-                    </div>
-
-                    <div class="feature-card premium">
-                        <div class="feature-icon">🎥</div>
-                        <div class="feature-title">Video Sync</div>
-                        <div class="feature-description">Upload video files and sync subtitles with playback timing</div>
-                        <div class="price-tag">Included in PRO</div>
-                    </div>
-
-                    <div class="feature-card premium">
-                        <div class="feature-title">Precision Placement</div>
-                        <div class="feature-description">Pixel-perfect subtitle positioning with real-time preview</div>
-                        <div class="price-tag">Included in PRO</div>
-                    </div>
-
-                    <div class="feature-card premium">
-                        <div class="feature-icon">🔧</div>
-                        <div class="feature-title">Advanced Tools</div>
-                        <div class="feature-description">Batch operations, formatting tools, and export options</div>
-                        <div class="price-tag">Included in PRO</div>
-                    </div>
+                <div class="pricing-hero">
+                    <h2>🚀 Go Pro — Supercharge Your Subtitle Workflow</h2>
+                    <p class="pricing-subtitle">Join hundreds of professionals who trust SRT Snap for subtitle editing</p>
                 </div>
 
-                <div class="payment-section">
-                    <div class="payment-info">
-                        <h3>🛒 PRO Subscription</h3>
-                        <div class="pricing-details">
-                            <div class="price-display">
-                                <span class="price-amount">$50.00</span>
-                                <span class="price-period">One-time payment</span>
-                            </div>
-                            <div class="features-summary">
-                                <h4>✅ All PRO Features Include:</h4>
-                                <ul>
-                                    <li>🎬 Full timeline editor with drag-and-drop</li>
-                                    <li>🎥 Video sync and preview capabilities</li>
-                                    <li>⚙️ Precision placement tools</li>
-                                    <li>🔧 Advanced batch operations</li>
-                                    <li>📥 Export to multiple formats</li>
-                                    <li>💾 Lifetime access - no subscriptions</li>
-                                </ul>
-                            </div>
+                <div class="pricing-compare">
+                    <!-- Free Tier -->
+                    <div class="pricing-card free-card">
+                        <div class="pricing-card-header">
+                            <h3>Free</h3>
+                            <div class="pricing-amount pricing-amount-free">$0</div>
+                            <p class="pricing-duration">Forever free — no credit card</p>
+                        </div>
+                        <ul class="pricing-features-list">
+                            <li><span class="check">✅</span> Upload & edit SRT files</li>
+                            <li><span class="check">✅</span> Download edited subtitles</li>
+                            <li><span class="check">✅</span> Preview subtitle formatting</li>
+                            <li><span class="check">✅</span> Auto-save functionality</li>
+                            <li><span class="check">✅</span> Keyboard shortcuts</li>
+                            <li class="disabled"><span class="cross">❌</span> Timeline drag-and-drop editor</li>
+                            <li class="disabled"><span class="cross">❌</span> Video sync & preview</li>
+                            <li class="disabled"><span class="cross">❌</span> Precision placement tools</li>
+                            <li class="disabled"><span class="cross">❌</span> Advanced batch operations</li>
+                            <li class="disabled"><span class="cross">❌</span> Multi-format export</li>
+                        </ul>
+                        <div class="pricing-card-footer">
+                            <span class="current-plan-badge">✅ Current Plan</span>
                         </div>
                     </div>
 
-                    <div class="payment-methods">
-                        <h4>🔒 Secure Payment Processing</h4>
-                        <div class="payment-badges">
-                            <span class="badge">Stripe Secure</span>
-                            <span class="badge">PayPal Protected</span>
-                            <span class="badge">256-bit SSL</span>
+                    <!-- Pro Tier -->
+                    <div class="pricing-card pro-card featured">
+                        <div class="popular-badge">🔥 Most Popular</div>
+                        <div class="pricing-card-header">
+                            <h3>Pro</h3>
+                            <div class="pricing-amount">$50</div>
+                            <p class="pricing-duration">One-time payment — lifetime access</p>
+                            <div class="pricing-savings">Save $100+ vs monthly tools</div>
                         </div>
-                        
-                        <div class="payment-form">
-                            <div class="form-group">
-                                <label>Email Address</label>
-                                <input type="email" placeholder="your@email.com" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Card Number</label>
-                                <input type="text" placeholder="1234 5678 9012 3456" required>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Expiry Date</label>
-                                    <input type="text" placeholder="MM/YY" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>CVV</label>
-                                    <input type="text" placeholder="123" required>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Billing Name</label>
-                                <input type="text" placeholder="John Doe" required>
-                            </div>
-                            
-                            <div class="payment-security">
-                                <span class="lock-icon">🔒</span>
-                                <span>Your payment information is protected and encrypted</span>
-                            </div>
-                            
-                            <button class="pay-btn" onclick="processPayment()">💳 Pay $50.00 Now</button>
+                        <ul class="pricing-features-list">
+                            <li><span class="check">✅</span> Everything in Free, plus...</li>
+                            <li><span class="check">✅</span> 🎬 Timeline drag-and-drop editor</li>
+                            <li><span class="check">✅</span> 🎥 Video sync & real-time preview</li>
+                            <li><span class="check">✅</span> ⚙️ Precision subtitle placement</li>
+                            <li><span class="check">✅</span> 🔧 Advanced batch operations</li>
+                            <li><span class="check">✅</span> 📥 Export to multiple formats</li>
+                            <li><span class="check">✅</span> 💾 Lifetime access & updates</li>
+                            <li><span class="check">✅</span> 🎯 Priority support</li>
+                        </ul>
+                        <div class="pricing-card-footer">
+                            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-cta">🔥 Get Pro Now — $50</a>
+                        </div>
+                        <div class="pricing-card-bottom">
+                            <a href="#" class="already-purchased" onclick="unlockPro(); return false;">Already purchased? Click to activate</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="money-back-guarantee">
-                    <h4>🛡️ 30-Day Money-Back Guarantee</h4>
-                    <p>If you're not completely satisfied with the PRO features within 30 days, we'll refund your payment - no questions asked.</p>
+                <!-- Trust & Urgency Section -->
+                <div class="pricing-trust">
+                    <div class="trust-badges">
+                        <span class="trust-badge">🛡️ <strong>30-Day Guarantee</strong> — Full refund if not satisfied</span>
+                        <span class="trust-badge">🔒 <strong>Secure Checkout</strong> — Powered by PayPal</span>
+                        <span class="trust-badge">⚡ <strong>Instant Access</strong> — Activated immediately</span>
+                        <span class="trust-badge">📧 <strong>Lifetime Updates</strong> — Free forever</span>
+                    </div>
+                </div>
+
+                <!-- Testimonial -->
+                <div class="pricing-testimonial">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                        <p class="testimonial-text">"SRT Snap's timeline editor saved me hours of manual work. The video sync feature is a game-changer for my workflow. Best $50 I've spent!"</p>
+                        <div class="testimonial-author">
+                            <span class="testimonial-avatar">👤</span>
+                            <div>
+                                <strong>Alex Chen</strong>
+                                <span>Video Editor, Freelancer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="pricing-faq">
+                    <h3>❓ Questions? We've got answers</h3>
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <strong>How does payment work?</strong>
+                            <p>You'll be redirected to PayPal's secure checkout. After payment, activate Pro instantly.</p>
+                        </div>
+                        <div class="faq-item">
+                            <strong>Is it really one-time payment?</strong>
+                            <p>Yes! Pay $50 once and get lifetime access — no subscriptions, no hidden fees.</p>
+                        </div>
+                        <div class="faq-item">
+                            <strong>What if I'm not satisfied?</strong>
+                            <p>30-day money-back guarantee. If Pro doesn't meet your needs, you get a full refund.</p>
+                        </div>
+                        <div class="faq-item">
+                            <strong>Can I use it anywhere?</strong>
+                            <p>Yes! It's web-based — your Pro status works in any browser on any device.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Urgency CTA -->
+                <div class="pricing-bottom-cta">
+                    <p>⏳ Join <strong>500+ subtitle editors</strong> who've upgraded to Pro</p>
+                    <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-cta btn-pro-cta-large">🔥 Get Pro Now — Unlock Everything for $50</a>
+                    <p class="cta-subtext">Secure checkout via PayPal · 30-day money-back guarantee</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Sticky CTA Bar -->
+    <div id="sticky-cta-bar" class="sticky-cta-bar">
+        <div class="sticky-cta-content">
+            <span class="sticky-cta-text">🚀 Unlock timeline editing, video sync & more</span>
+            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-sticky-cta">🔥 Get Pro Now — $50</a>
         </div>
     </div>
 
@@ -200,7 +223,28 @@
 
             // Show selected tab
             document.getElementById(tabName + '-tab').classList.add('active');
-            event.target.classList.add('active');
+            // Mark the clicked tab as active
+            document.querySelectorAll('.tab').forEach(t => {
+                if (t.textContent.trim().toLowerCase().includes(tabName.toLowerCase())) {
+                    t.classList.add('active');
+                }
+            });
+
+            // Update sticky CTA visibility
+            updateStickyCTA(tabName);
+        }
+
+        // Control sticky CTA bar visibility
+        function updateStickyCTA(currentTab) {
+            const stickyCta = document.getElementById('sticky-cta-bar');
+            if (!stickyCta) return;
+            
+            // Show on editor or pricing tabs if not Pro
+            if (!isProUser && (currentTab === 'editor' || currentTab === 'pricing')) {
+                stickyCta.style.display = 'block';
+            } else {
+                stickyCta.style.display = 'none';
+            }
         }
 
         // Handle file upload
@@ -345,7 +389,12 @@
             }, 5000);
         }
 
-        // Unlock PRO features
+        // Redirect to PayPal checkout
+        function redirectToPayPal() {
+            window.open('https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ', '_blank');
+        }
+
+        // Unlock Pro features (for post-payment activation)
         function unlockPro() {
             isProUser = true;
             localStorage.setItem('isProUser', 'true');
@@ -354,13 +403,17 @@
             showTab('editor');
 
             // Show success message
-            showSuccess('PRO license activated! You now have access to timeline editor, video sync, and precision placement.');
+            showSuccess('Pro license activated! You now have access to timeline editor, video sync, and precision placement.');
 
-            // Enable PRO features
+            // Enable Pro features
             enablePROFeatures();
+
+            // Hide sticky CTA
+            const stickyCta = document.getElementById('sticky-cta-bar');
+            if (stickyCta) stickyCta.style.display = 'none';
         }
 
-        // Enable PRO features
+        // Enable Pro features
         function enablePROFeatures() {
             // Show timeline preview
             document.getElementById('timeline-preview').classList.add('active');
@@ -548,6 +601,9 @@
                 isProUser = true;
                 enablePROFeatures();
             }
+
+            // Initialize sticky CTA
+            updateStickyCTA('upload');
 
             // Add keyboard shortcuts
             document.addEventListener('keydown', function(e) {

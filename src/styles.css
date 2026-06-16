@@ -552,3 +552,530 @@ input[type="file"] {
 .rounded {
     border-radius: 8px;
 }
+
+/* =============================================
+   CRO & PRICING SECTION — Conversion Optimized
+   ============================================= */
+
+/* Pro Badge */
+.pro-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Pricing Hero */
+.pricing-hero {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.pricing-hero h2 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.pricing-hero .pricing-subtitle {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Pricing Comparison Layout */
+.pricing-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 900px;
+    margin: 0 auto 40px;
+}
+
+@media (max-width: 768px) {
+    .pricing-compare {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+}
+
+/* Pricing Cards */
+.pricing-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card.featured {
+    border-color: #ff9800;
+    box-shadow: 0 8px 25px rgba(255, 152, 0, 0.15);
+}
+
+.pricing-card.featured:hover {
+    box-shadow: 0 12px 35px rgba(255, 152, 0, 0.25);
+}
+
+.popular-badge {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.pricing-card-header {
+    padding: 30px 25px 20px;
+    text-align: center;
+}
+
+.pricing-card-header h3 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.pricing-amount {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+.pricing-amount-free {
+    color: #4CAF50;
+}
+
+.pricing-duration {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    margin-top: 8px;
+}
+
+.pricing-savings {
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+/* Pricing Features List */
+.pricing-features-list {
+    list-style: none;
+    padding: 0 25px;
+    margin: 0 0 20px;
+    flex: 1;
+}
+
+.pricing-features-list li {
+    padding: 8px 0;
+    font-size: 0.95rem;
+    color: #555;
+    border-bottom: 1px solid #f5f5f5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pricing-features-list li:last-child {
+    border-bottom: none;
+}
+
+.pricing-features-list li.disabled {
+    color: #bbb;
+    text-decoration: line-through;
+}
+
+.pricing-features-list .check,
+.pricing-features-list .cross {
+    min-width: 20px;
+    font-size: 0.9rem;
+}
+
+/* Pricing Card Footer */
+.pricing-card-footer {
+    padding: 20px 25px 25px;
+    text-align: center;
+}
+
+.current-plan-badge {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 8px;
+}
+
+.pricing-card-bottom {
+    padding: 0 25px 20px;
+    text-align: center;
+}
+
+.already-purchased {
+    color: #2196F3;
+    font-size: 0.85rem;
+    text-decoration: none;
+    border-bottom: 1px dashed #2196F3;
+}
+
+.already-purchased:hover {
+    color: #1565C0;
+    border-bottom-style: solid;
+}
+
+/* Pro CTA Button */
+.btn-pro-cta {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 16px 40px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.btn-pro-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+    background: linear-gradient(135deg, #f57c00, #e65100);
+}
+
+.btn-pro-cta:active {
+    transform: translateY(0);
+}
+
+.btn-pro-cta-large {
+    font-size: 1.3rem;
+    padding: 20px 50px;
+}
+
+/* Lock Info with CTA Button */
+.lock-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.lock-info-content {
+    flex: 1;
+    min-width: 200px;
+}
+
+.lock-info-content strong {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+
+.lock-info-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #856404;
+}
+
+.btn-pro-lock {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+    white-space: nowrap;
+    animation: pulse-cta 2s infinite;
+}
+
+.btn-pro-lock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+    background: linear-gradient(135deg, #f57c00, #e65100);
+}
+
+@keyframes pulse-cta {
+    0%, 100% {
+        box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 3px 20px rgba(255, 152, 0, 0.6);
+    }
+}
+
+/* Trust Badges */
+.pricing-trust {
+    max-width: 900px;
+    margin: 0 auto 40px;
+}
+
+.trust-badges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.trust-badge {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: #495057;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.trust-badge:hover {
+    border-color: #ff9800;
+    background: #fff8f0;
+}
+
+.trust-badge strong {
+    color: #2c3e50;
+}
+
+/* Testimonial */
+.pricing-testimonial {
+    max-width: 650px;
+    margin: 0 auto 40px;
+}
+
+.testimonial-card {
+    background: linear-gradient(135deg, #f8f9fa, #fff);
+    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+}
+
+.testimonial-stars {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.testimonial-text {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.testimonial-avatar {
+    font-size: 2rem;
+}
+
+.testimonial-author div {
+    text-align: left;
+}
+
+.testimonial-author strong {
+    display: block;
+    color: #2c3e50;
+}
+
+.testimonial-author span {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+/* FAQ Section */
+.pricing-faq {
+    max-width: 800px;
+    margin: 0 auto 40px;
+}
+
+.pricing-faq h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 25px;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .faq-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.faq-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+
+.faq-item strong {
+    display: block;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+.faq-item p {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Bottom CTA */
+.pricing-bottom-cta {
+    text-align: center;
+    padding: 30px 0 10px;
+    border-top: 1px solid #eee;
+}
+
+.pricing-bottom-cta p {
+    color: #555;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.pricing-bottom-cta .cta-subtext {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-top: 12px;
+}
+
+/* =============================================
+   STICKY CTA BAR — Fixed bottom bar
+   ============================================= */
+.sticky-cta-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    padding: 12px 20px;
+    display: none;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.sticky-cta-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.sticky-cta-text {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .sticky-cta-text {
+        font-size: 0.9rem;
+        text-align: center;
+        width: 100%;
+    }
+    .sticky-cta-content {
+        justify-content: center;
+    }
+}
+
+.btn-sticky-cta {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 12px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(255, 152, 0, 0.3);
+    white-space: nowrap;
+    animation: pulse-cta 2s infinite;
+}
+
+.btn-sticky-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 18px rgba(255, 152, 0, 0.5);
+    background: linear-gradient(135deg, #f57c00, #e65100);
+}
+
+/* Remove old pricing styles we no longer use */
+.premium-features,
+.payment-section,
+.payment-methods,
+.payment-form,
+.payment-info,
+.pricing-details,
+.price-display,
+.features-summary,
+.money-back-guarantee,
+.pay-btn,
+.badge,
+.payment-security,
+.payment-badges {
+    /* These are replaced by the new CRO design */
+}
