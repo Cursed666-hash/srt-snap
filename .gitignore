@@ -37,6 +37,9 @@ bower_components/
 # Package lock
 package-lock.json
 
+# Admin secret configuration (gitignored — contains credentials)
+src/secret-config.js
+
 # Environment variables
 .env
 .env.test

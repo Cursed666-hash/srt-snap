@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/styles.css">
+    <script src="src/secret-config.js"></script>
     <script src="src/auth.js"></script>
     <script src="src/editor.js"></script>
 </head>
@@ -430,14 +431,15 @@
             <div class="auth-modal-header">
                 <button class="auth-tab active" id="auth-tab-login-btn" onclick="switchAuthTab('login')">Login</button>
                 <button class="auth-tab" id="auth-tab-register-btn" onclick="switchAuthTab('register')">Register</button>
+                <button class="auth-tab" id="auth-tab-verify-btn" onclick="switchAuthTab('verify')">🔑 Verify</button>
                 <button class="auth-close" onclick="closeAuthModal()">✕</button>
             </div>
             <div id="auth-login-form" class="auth-form active">
                 <h3>Welcome Back</h3>
                 <p class="auth-subtitle">Log in to activate your Pro license across devices</p>
                 <div class="auth-field">
-                    <label>Email</label>
-                    <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+                    <label>Email / Username</label>
+                    <input type="text" id="login-email" placeholder="your@email.com or admin" autocomplete="username">
                 </div>
                 <div class="auth-field">
                     <label>Password</label>
@@ -464,7 +466,30 @@
                 </div>
                 <button class="btn btn-success" onclick="handleRegister()" style="width:100%;justify-content:center;">✅ Create Account</button>
                 <div id="register-error" class="auth-error"></div>
+                <!-- Verification key display (shown after registration) -->
+                <div id="verification-key-section" class="verification-key-section" style="display:none;">
+                    <div class="verification-key-icon">🔑</div>
+                    <div class="verification-key-label">Your Verification Key</div>
+                    <div id="verification-key-display" class="verification-key-display">SRTV-XXXX-XXXX-XXXX</div>
+                    <p class="verification-key-hint">Save this key! You'll need it to re-verify your Pro status if the site forgets you.</p>
+                    <p class="verification-key-email">📧 A copy has been sent to <span id="verification-email-display"></span></p>
+                </div>
                 <p class="auth-switch">Already have an account? <a href="#" onclick="switchAuthTab('login')">Login here</a></p>
+            </div>
+            <div id="auth-verify-form" class="auth-form">
+                <h3>Verify Pro Status</h3>
+                <p class="auth-subtitle">Use your verification key to restore Pro access if the site forgot your status.</p>
+                <div class="auth-field">
+                    <label>Email</label>
+                    <input type="email" id="verify-email" placeholder="your@email.com">
+                </div>
+                <div class="auth-field">
+                    <label>Verification Key</label>
+                    <input type="text" id="verify-key" placeholder="SRTV-XXXX-XXXX-XXXX" style="font-family:'Courier New',monospace;letter-spacing:1px;text-transform:uppercase;">
+                </div>
+                <button class="btn btn-success" onclick="handleVerifyWithKey()" style="width:100%;justify-content:center;">✅ Verify & Restore Pro</button>
+                <div id="verify-error" class="auth-error"></div>
+                <p class="auth-switch">Need a key? <a href="#" onclick="switchAuthTab('register')">Register an account</a></p>
             </div>
         </div>
     </div>
@@ -508,6 +533,8 @@
     <div id="user-bar" class="user-bar" style="display:none;">
         <span id="user-bar-email" class="user-bar-email"></span>
         <span id="user-bar-badge" class="pro-badge-sm" style="display:none;">Pro</span>
+        <span id="user-bar-admin-badge" class="admin-badge" style="display:none;">👑 Admin</span>
+        <button class="user-bar-btn" id="admin-toggle-pro-btn" style="display:none;" onclick="adminTogglePro()">🔓 Toggle Pro</button>
         <button class="user-bar-btn" onclick="showLicenseModal()">🔑 License</button>
         <button class="user-bar-btn" onclick="handleLogout()">🚪 Logout</button>
     </div>
@@ -898,10 +925,13 @@
             // Init auth system
             const auth = AuthSystem.init();
             isProUser = auth.isPro;
-            currentUser = AuthSystem.getCurrentUser();
+            const session = AuthSystem.getCurrentUser();
+            currentUser = session ? { email: session.email, isAdmin: AuthSystem.isAdmin() } : null;
 
             if (isProUser) {
                 enablePROFeatures();
+            }
+            if (currentUser) {
                 updateUserBar();
             }
 
@@ -947,9 +977,11 @@
             document.getElementById('auth-modal').style.display = 'none';
             document.getElementById('login-error').textContent = '';
             document.getElementById('register-error').textContent = '';
+            document.getElementById('verify-error').textContent = '';
+            document.getElementById('verification-key-section').style.display = 'none';
         }
 
-        // Switch between login and register tabs
+        // Switch between login, register, and verify tabs
         function switchAuthTab(tab) {
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -957,6 +989,11 @@
             document.getElementById('auth-tab-' + tab + '-btn').classList.add('active');
             document.getElementById('login-error').textContent = '';
             document.getElementById('register-error').textContent = '';
+            document.getElementById('verify-error').textContent = '';
+            // Hide verification key section when switching away from register
+            if (tab !== 'register') {
+                document.getElementById('verification-key-section').style.display = 'none';
+            }
         }
 
         // Handle login
@@ -968,14 +1005,26 @@
             const result = AuthSystem.login(email, password);
             if (result.success) {
                 isProUser = result.isPro || false;
-                currentUser = { email: result.email };
+                currentUser = { email: result.email, isAdmin: result.isAdmin || false };
+
+                // If admin, load admin config Pro toggle
+                if (result.isAdmin) {
+                    isProUser = AuthSystem.isPro(); // Re-check with admin toggle
+                }
+
                 closeAuthModal();
                 updateUserBar();
+
+                // Show verification key if available
+                if (result.verificationKey) {
+                    showSuccess('Logged in as ' + result.email + ' 🔑 Save your verification key: ' + result.verificationKey);
+                } else {
+                    showSuccess('Logged in as ' + result.email);
+                }
+
                 if (isProUser) {
                     enablePROFeatures();
                     showTab('editor');
-                } else {
-                    showSuccess('Logged in as ' + result.email);
                 }
             } else {
                 errorEl.textContent = result.error;
@@ -997,9 +1046,23 @@
             const result = AuthSystem.register(email, password);
             if (result.success) {
                 currentUser = { email: result.email };
-                closeAuthModal();
                 updateUserBar();
                 showSuccess('Account created! You are now logged in.');
+                
+                // Show verification key
+                if (result.verificationKey) {
+                    const vkeySection = document.getElementById('verification-key-section');
+                    const vkeyDisplay = document.getElementById('verification-key-display');
+                    const emailDisplay = document.getElementById('verification-email-display');
+                    if (vkeySection && vkeyDisplay) {
+                        vkeyDisplay.textContent = result.verificationKey;
+                        if (emailDisplay) emailDisplay.textContent = result.email;
+                        vkeySection.style.display = 'block';
+                    }
+                    // Simulate sending verification email
+                    console.log('📧 Verification email sent to ' + result.email + ' with key: ' + result.verificationKey);
+                }
+
                 // Check if they have a Pro license to activate
                 if (localStorage.getItem('isProUser') === 'true') {
                     unlockPro();
@@ -1052,11 +1115,56 @@
             }
         }
 
+        // Handle verification key verification
+        function handleVerifyWithKey() {
+            const email = document.getElementById('verify-email').value;
+            const key = document.getElementById('verify-key').value;
+            const errorEl = document.getElementById('verify-error');
+
+            const result = AuthSystem.verifyWithKey(email, key);
+            if (result.success) {
+                isProUser = true;
+                currentUser = { email: result.email };
+                closeAuthModal();
+                updateUserBar();
+                enablePROFeatures();
+                showTab('editor');
+                showSuccess(result.message);
+            } else {
+                errorEl.textContent = result.error;
+            }
+        }
+
+        // Admin Pro toggle
+        function adminTogglePro() {
+            const newPro = AuthSystem.adminTogglePro();
+            isProUser = AuthSystem.isPro();
+            updateUserBar();
+            if (isProUser) {
+                enablePROFeatures();
+                showSuccess('👑 Admin: Pro mode ENABLED');
+            } else {
+                // Disable Pro features
+                const lockOverlay = document.getElementById('editor-lock-overlay');
+                const editorMain = document.getElementById('editor-main');
+                if (lockOverlay) lockOverlay.style.display = 'block';
+                if (editorMain) editorMain.style.display = 'none';
+                showSuccess('👑 Admin: Pro mode DISABLED (for testing)');
+            }
+            // Update toggle button text
+            const toggleBtn = document.getElementById('admin-toggle-pro-btn');
+            if (toggleBtn) {
+                toggleBtn.textContent = isProUser ? '🔒 Disable Pro' : '🔓 Enable Pro';
+            }
+        }
+
         // Update user bar display
         function updateUserBar() {
             const bar = document.getElementById('user-bar');
             const emailEl = document.getElementById('user-bar-email');
             const badgeEl = document.getElementById('user-bar-badge');
+            const adminBadgeEl = document.getElementById('user-bar-admin-badge');
+            const adminToggleEl = document.getElementById('admin-toggle-pro-btn');
             if (!bar || !emailEl) return;
 
             if (currentUser && currentUser.email) {
@@ -1064,6 +1172,15 @@
                 emailEl.textContent = currentUser.email;
                 if (badgeEl) {
                     badgeEl.style.display = isProUser ? 'inline-block' : 'none';
+                }
+                // Admin-specific UI
+                const isAdmin = currentUser.isAdmin || AuthSystem.isAdmin();
+                if (adminBadgeEl) {
+                    adminBadgeEl.style.display = isAdmin ? 'inline-block' : 'none';
+                }
+                if (adminToggleEl) {
+                    adminToggleEl.style.display = isAdmin ? 'inline-block' : 'none';
+                    adminToggleEl.textContent = isProUser ? '🔒 Disable Pro' : '🔓 Enable Pro';
                 }
             } else {
                 bar.style.display = 'none';

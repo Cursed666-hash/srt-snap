@@ -1734,8 +1734,8 @@ a {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 20%;
-    right: 20%;
+    left: 12%;
+    right: 12%;
     height: 3px;
     background: var(--c-pro-bg);
     border-radius: 3px 3px 0 0;
@@ -2270,4 +2270,74 @@ a {
         margin: 10px;
         border-radius: var(--radius-md);
     }
+}
+
+/* =============================================
+   VERIFICATION KEY DISPLAY (shown after register)
+   ============================================= */
+.verification-key-section {
+    background: linear-gradient(135deg, #FFF7ED, #FFFBEB);
+    border: 2px solid #FDE68A;
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin-top: 18px;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+.verification-key-icon {
+    font-size: 2rem;
+    margin-bottom: 6px;
+}
+
+.verification-key-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #92400E;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.verification-key-display {
+    background: white;
+    border: 2px dashed #F59E0B;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: 'Courier New', 'Monaco', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #B45309;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    user-select: all;
+    cursor: copy;
+}
+
+.verification-key-hint {
+    font-size: 0.78rem;
+    color: #A16207;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+.verification-key-email {
+    font-size: 0.78rem;
+    color: #78716C;
+    font-style: italic;
+}
+
+/* =============================================
+   ADMIN BADGE
+   ============================================= */
+.admin-badge {
+    background: linear-gradient(135deg, #7C3AED, #6D28D9);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
 }
