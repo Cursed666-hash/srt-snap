@@ -13,6 +13,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/styles.css">
+    <script src="src/auth.js"></script>
+    <script src="src/editor.js"></script>
 </head>
 <body>
     <!-- Top Urgency Bar -->
@@ -72,64 +74,115 @@
                 <div class="file-list" id="file-list"></div>
             </div>
 
+            <!-- ==========================================
+                 EDITOR TAB — PowerDirector-style Timeline
+                 ========================================== -->
             <div id="editor-tab" class="tab-content">
-                <h2>SRT Editor</h2>
-                <div class="lock-info" id="lock-info">
-                    <div class="lock-info-left">
-                        <div class="lock-info-icon">🔒</div>
-                    </div>
-                    <div class="lock-info-content">
-                        <div class="lock-info-header">
-                            <strong>Pro Feature Locked</strong>
-                            <span class="pro-badge-sm">Pro</span>
+                <!-- Lock overlay for non-Pro users -->
+                <div id="editor-lock-overlay" class="editor-lock-overlay">
+                    <div class="lock-info">
+                        <div class="lock-info-left">
+                            <div class="lock-info-icon">🔒</div>
                         </div>
-                        <p>Free users are limited to basic text editing. Upgrade to <strong>Pro</strong> to unlock your workflow:</p>
-                        <div class="lock-info-benefits">
-                            <span><span class="check-icon">✓</span> Timeline drag-and-drop editor</span>
-                            <span><span class="check-icon">✓</span> Video sync & real-time preview</span>
-                            <span><span class="check-icon">✓</span> Precision subtitle placement</span>
-                            <span><span class="check-icon">✓</span> Advanced batch operations</span>
+                        <div class="lock-info-content">
+                            <div class="lock-info-header">
+                                <strong>Pro Feature Locked</strong>
+                                <span class="pro-badge-sm">Pro</span>
+                            </div>
+                            <p>The PowerDirector-style timeline editor is exclusive to <strong>Pro</strong> users.</p>
+                            <div class="lock-info-benefits">
+                                <span><span class="check-icon">✓</span> Video upload & timeline editing</span>
+                                <span><span class="check-icon">✓</span> Vocal audio detection & sync</span>
+                                <span><span class="check-icon">✓</span> Drag & drop subtitle blocks</span>
+                                <span><span class="check-icon">✓</span> Export video with burned-in subtitles</span>
+                            </div>
+                            <div class="lock-info-roi">
+                                <span>🎬 <strong>Only Pro users</strong> can edit video subtitles directly</span>
+                                <span>🔊 <strong>Auto-detect</strong> speech segments for perfect sync</span>
+                            </div>
+                            <p style="margin-top:12px;font-size:0.85rem;color:#A16207;">
+                                👋 Non-editor level? Use the <strong>Upload tab</strong> to work with .srt files.
+                            </p>
                         </div>
-                        <div class="lock-info-roi">
-                            <span>⏱️ Pro users finish <strong>3x faster</strong></span>
-                            <span>💰 <strong>Save 15+ hours</strong> per project</span>
+                        <div class="lock-info-cta">
+                            <a href="#" onclick="showAuthModal('login'); return false;" class="btn btn-primary" style="margin-bottom:6px;width:100%;text-align:center;">🔑 Login</a>
+                            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-lock" style="margin-bottom:6px;">🔥 Get Pro Now — $50</a>
+                            <a href="#" onclick="showTab('pricing'); return false;" class="lock-info-compare">See what you're missing →</a>
                         </div>
                     </div>
-                    <div class="lock-info-cta">
-                        <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-lock">🔥 Get Pro Now — $50</a>
-                        <a href="#" onclick="showTab('pricing'); return false;" class="lock-info-compare">See what you're missing →</a>
+                </div>
+
+                <!-- Timeline Editor (Pro only) -->
+                <div id="editor-main" class="editor-main" style="display:none;">
+                    <!-- Editor Toolbar -->
+                    <div class="editor-toolbar">
+                        <div class="editor-toolbar-left">
+                            <span class="editor-toolbar-title">🎬 Timeline Editor</span>
+                            <span class="editor-subtitle-count" id="subtitle-count">0</span>
+                            <span class="editor-subtitle-label">subtitles</span>
+                        </div>
+                        <div class="editor-toolbar-right">
+                            <button class="editor-btn" onclick="TimelineEditor.undo()" title="Undo">↩</button>
+                            <button class="editor-btn" onclick="TimelineEditor.redo()" title="Redo">↪</button>
+                            <span class="editor-sep"></span>
+                            <button class="editor-btn" onclick="TimelineEditor.zoomOut()" title="Zoom Out">🔍−</button>
+                            <span class="editor-zoom-level" id="zoom-display">100%</span>
+                            <button class="editor-btn" onclick="TimelineEditor.zoomIn()" title="Zoom In">🔍+</button>
+                            <button class="editor-btn" onclick="TimelineEditor.zoomReset()" title="Reset Zoom">⊡</button>
+                            <span class="editor-sep"></span>
+                            <button class="editor-btn" onclick="TimelineEditor.toggleSnap()" title="Toggle Snap">🔗</button>
+                        </div>
+                    </div>
+
+                    <!-- Success/Error Messages -->
+                    <div class="success-message" id="timeline-success" style="margin-bottom:10px;"></div>
+                    <div class="error-message" id="timeline-error" style="margin-bottom:10px;"></div>
+
+                    <!-- Video Player -->
+                    <div id="editor-video-player" class="editor-video-player"></div>
+
+                    <!-- Timeline Area -->
+                    <div class="editor-timeline-area">
+                        <div class="editor-timeline-header">
+                            <span class="editor-section-label">📊 Timeline</span>
+                            <div class="editor-timeline-actions">
+                                <button class="editor-btn-sm" onclick="TimelineEditor.autoSyncFromVocals()">🎤 Auto-Sync from Vocals</button>
+                                <button class="editor-btn-sm" onclick="document.getElementById('timeline-video-input').click()">📁 Load Video</button>
+                                <input type="file" id="timeline-video-input" accept="video/*" style="display:none;" onchange="if(this.files[0])TimelineEditor.loadVideoFile(this.files[0])">
+                                <button class="editor-btn-sm" onclick="document.getElementById('timeline-srt-input').click()">📄 Load SRT</button>
+                                <input type="file" id="timeline-srt-input" accept=".srt" style="display:none;" onchange="if(this.files[0])TimelineEditor.loadSRTFile(this.files[0])">
+                            </div>
+                        </div>
+                        <div id="timeline-editor-container" class="timeline-editor-container">
+                            <!-- Rendered by TimelineEditor -->
+                        </div>
+                    </div>
+
+                    <!-- Subtitle Operations Bar -->
+                    <div class="editor-sub-ops">
+                        <span class="editor-sub-ops-label">✂️ Subtitle Ops:</span>
+                        <button class="editor-btn-xs" onclick="TimelineEditor.deleteSelectedSubtitle()">🗑️ Delete Selected</button>
+                        <button class="editor-btn-xs" onclick="TimelineEditor.splitSubtitle()">✂️ Split</button>
+                        <button class="editor-btn-xs" onclick="TimelineEditor.mergeNextSubtitle()">🔗 Merge Next</button>
+                        <button class="editor-btn-xs" onclick="TimelineEditor.clearAllSubtitles()">🗑️ Clear All</button>
+                    </div>
+
+                    <!-- SRT Editor -->
+                    <div class="editor-srt-section">
+                        <div class="editor-srt-header">
+                            <span class="editor-section-label">📝 SRT Source</span>
+                            <div class="editor-srt-actions">
+                                <button class="editor-btn-sm" onclick="TimelineEditor.loadSRTFromEditor()">🔄 Sync from Editor</button>
+                                <button class="editor-btn-sm" onclick="TimelineEditor.exportSRT()">💾 Export SRT</button>
+                                <button class="editor-btn-sm btn-export-video" onclick="TimelineEditor.exportVideo()">🎬 Export Video</button>
+                            </div>
+                        </div>
+                        <textarea id="timeline-srt-editor" class="timeline-srt-editor" spellcheck="false" placeholder="SRT content will appear here after loading a video or SRT file..."></textarea>
                     </div>
                 </div>
 
-                <div class="success-message" id="success-message">
-                    ✅ Pro License Activated!
-                </div>
-
-                <div class="error-message" id="error-message">
-                </div>
-
-                <div class="controls">
-                    <button class="btn btn-primary" onclick="downloadSRT()">💾 Download SRT</button>
-                    <button class="btn btn-success" onclick="newSRT()">➕ New SRT</button>
-                    <button class="btn btn-danger" onclick="clearEditor()">🗑️ Clear</button>
-                </div>
-
-                <div class="timeline-preview" id="timeline-preview">
-                    <h3>📊 Timeline Preview <span class="pro-badge">Pro</span></h3>
-                    <p>Drag and drop subtitle blocks to reposition them precisely</p>
-                    <div id="timeline-container" style="height: 100px; background: #e0e0e0; border-radius: 4px; margin: 20px 0;"></div>
-                </div>
-
-                <div class="video-preview" id="video-preview">
-                    <h3>🎥 Video Sync Preview <span class="pro-badge">Pro</span></h3>
-                    <p>Upload video file to sync subtitles with playback</p>
-                    <div id="video-container" style="height: 200px; background: #333; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #666;">Video preview area</span>
-                    </div>
-                </div>
-
-                <h3 style="margin-top: 30px;">SRT Content</h3>
-                <div class="editor" id="srt-editor" contenteditable="true" spellcheck="false"></div>
+                <!-- Toast Container -->
+                <div id="editor-toast-container" class="editor-toast-container"></div>
             </div>
 
             <div id="preview-tab" class="tab-content">
@@ -369,6 +422,96 @@
         </div>
     </div>
 
+    <!-- =============================================
+         AUTH MODAL
+         ============================================= -->
+    <div id="auth-modal" class="auth-modal-overlay" style="display:none;" onclick="if(event.target===this)closeAuthModal()">
+        <div class="auth-modal">
+            <div class="auth-modal-header">
+                <button class="auth-tab active" id="auth-tab-login-btn" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" id="auth-tab-register-btn" onclick="switchAuthTab('register')">Register</button>
+                <button class="auth-close" onclick="closeAuthModal()">✕</button>
+            </div>
+            <div id="auth-login-form" class="auth-form active">
+                <h3>Welcome Back</h3>
+                <p class="auth-subtitle">Log in to activate your Pro license across devices</p>
+                <div class="auth-field">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="auth-field">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password">
+                </div>
+                <button class="btn btn-primary" onclick="handleLogin()" style="width:100%;justify-content:center;">🔑 Login</button>
+                <div id="login-error" class="auth-error"></div>
+                <p class="auth-switch">Don't have an account? <a href="#" onclick="switchAuthTab('register')">Register here</a></p>
+            </div>
+            <div id="auth-register-form" class="auth-form">
+                <h3>Create Account</h3>
+                <p class="auth-subtitle">Register to manage your Pro license across any device</p>
+                <div class="auth-field">
+                    <label>Email</label>
+                    <input type="email" id="register-email" placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="auth-field">
+                    <label>Password</label>
+                    <input type="password" id="register-password" placeholder="Min 6 characters" autocomplete="new-password">
+                </div>
+                <div class="auth-field">
+                    <label>Confirm Password</label>
+                    <input type="password" id="register-confirm" placeholder="Confirm password" autocomplete="new-password">
+                </div>
+                <button class="btn btn-success" onclick="handleRegister()" style="width:100%;justify-content:center;">✅ Create Account</button>
+                <div id="register-error" class="auth-error"></div>
+                <p class="auth-switch">Already have an account? <a href="#" onclick="switchAuthTab('login')">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+         LICENSE KEY MODAL
+         ============================================= -->
+    <div id="license-modal" class="auth-modal-overlay" style="display:none;" onclick="if(event.target===this)closeLicenseModal()">
+        <div class="auth-modal" style="max-width:480px;">
+            <div class="auth-modal-header">
+                <span style="font-weight:700;font-size:1.05rem;color:var(--c-dark);">🔑 Activate Pro License</span>
+                <button class="auth-close" onclick="closeLicenseModal()">✕</button>
+            </div>
+            <div class="auth-form active">
+                <h3>Enter Your License Key</h3>
+                <p class="auth-subtitle">After purchasing Pro via PayPal, you'll receive a license key. Enter it below to activate on this device.</p>
+                <div class="auth-field">
+                    <label>Email (used at purchase)</label>
+                    <input type="email" id="license-email" placeholder="your@email.com">
+                </div>
+                <div class="auth-field">
+                    <label>License Key</label>
+                    <input type="text" id="license-key" placeholder="SRTN-XXXX-XXXX-XXXX" style="font-family:'Courier New',monospace;letter-spacing:1px;text-transform:uppercase;">
+                </div>
+                <button class="btn btn-success" onclick="handleLicenseActivation()" style="width:100%;justify-content:center;">✅ Activate Pro</button>
+                <div id="license-error" class="auth-error"></div>
+                <p class="auth-switch" style="margin-top:16px;">
+                    🔥 <strong>Just bought Pro?</strong>
+                    <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" style="color:var(--c-primary);font-weight:600;">Buy Now — $50</a>
+                </p>
+                <p class="auth-switch" style="font-size:0.78rem;color:var(--c-gray);margin-top:8px;">
+                    💡 Lost your key? Contact support with your PayPal transaction ID.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+         USER BAR — logged-in indicator
+         ============================================= -->
+    <div id="user-bar" class="user-bar" style="display:none;">
+        <span id="user-bar-email" class="user-bar-email"></span>
+        <span id="user-bar-badge" class="pro-badge-sm" style="display:none;">Pro</span>
+        <button class="user-bar-btn" onclick="showLicenseModal()">🔑 License</button>
+        <button class="user-bar-btn" onclick="handleLogout()">🚪 Logout</button>
+    </div>
+
     <!-- Sticky CTA Bar -->
     <div id="sticky-cta-bar" class="sticky-cta-bar">
         <div class="sticky-cta-content">
@@ -380,10 +523,17 @@
     <script>
         let currentSRT = null;
         let isProUser = false;
+        let currentUser = null;
         let selectedFile = null;
 
         // Show different tabs
         function showTab(tabName) {
+            // If editor tab and not Pro, redirect to login
+            if (tabName === 'editor' && !isProUser) {
+                showAuthModal('login');
+                return;
+            }
+
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -567,25 +717,30 @@
 
         // Unlock Pro features (for post-payment activation)
         function unlockPro() {
-            isProUser = true;
-            localStorage.setItem('isProUser', 'true');
-
-            // Hide pricing tab and show editor
-            showTab('editor');
-
-            // Show success message
-            showSuccess('Pro license activated! You now have access to timeline editor, video sync, and precision placement.');
-
-            // Enable Pro features
-            enablePROFeatures();
-
-            // Hide sticky CTA
-            const stickyCta = document.getElementById('sticky-cta-bar');
-            if (stickyCta) stickyCta.style.display = 'none';
-
-            // Increment local activation count
-            let count = parseInt(localStorage.getItem('proActivations') || '0');
-            localStorage.setItem('proActivations', (count + 1).toString());
+            const session = AuthSystem.getCurrentUser();
+            const email = session ? session.email : 'legacy@local';
+            
+            // Generate and save license key
+            const key = AuthSystem.generateLicenseKey(email);
+            const result = AuthSystem.activatePro(email, key);
+            
+            if (result.success) {
+                isProUser = true;
+                currentUser = { email };
+                
+                // Hide pricing tab and show editor
+                showTab('editor');
+                
+                showSuccess('Pro license activated! You now have access to the timeline editor, vocal detection, and video export.');
+                enablePROFeatures();
+                
+                const stickyCta = document.getElementById('sticky-cta-bar');
+                if (stickyCta) stickyCta.style.display = 'none';
+                
+                updateUserBar();
+            } else {
+                showError('Activation failed. Please try logging in first.');
+            }
         }
 
         // =============================================
@@ -673,132 +828,16 @@
             }
         }
 
-        // Enable Pro features
+        // Enable Pro features — initialize TimelineEditor
         function enablePROFeatures() {
-            // Show timeline preview
-            document.getElementById('timeline-preview').classList.add('active');
+            // Hide lock overlay, show editor main
+            const lockOverlay = document.getElementById('editor-lock-overlay');
+            const editorMain = document.getElementById('editor-main');
+            if (lockOverlay) lockOverlay.style.display = 'none';
+            if (editorMain) editorMain.style.display = 'block';
 
-            // Show video preview
-            document.getElementById('video-preview').classList.add('active');
-
-            // Hide lock info
-            document.getElementById('lock-info').classList.remove('show');
-
-            // Enable contenteditable
-            document.getElementById('srt-editor').contentEditable = 'true';
-
-            // Initialize timeline functionality
-            initTimeline();
-
-            // Initialize video functionality
-            initVideo();
-        }
-
-        // Initialize timeline functionality
-        function initTimeline() {
-            const timelineContainer = document.getElementById('timeline-container');
-
-            // Create sample timeline blocks for PRO users
-            for (let i = 0; i < 10; i++) {
-                const block = document.createElement('div');
-                block.style.cssText = `
-                    position: absolute;
-                    left: ${i * 50}px;
-                    top: 25px;
-                    width: 40px;
-                    height: 30px;
-                    background: ${i % 2 === 0 ? '#4CAF50' : '#2196F3'};
-                    border-radius: 4px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-size: 0.8em;
-                    cursor: grab;
-                    user-select: none;
-                `;
-                block.textContent = (i + 1).toString();
-                block.draggable = true;
-
-                block.addEventListener('dragstart', function(e) {
-                    e.dataTransfer.setData('text/plain', i);
-                    this.style.opacity = '0.5';
-                });
-
-                block.addEventListener('dragend', function() {
-                    this.style.opacity = '1';
-                });
-
-                block.addEventListener('click', function() {
-                    this.style.border = '2px solid #ff9800';
-                });
-
-                timelineContainer.appendChild(block);
-            }
-
-            // Add drop zone functionality
-            timelineContainer.addEventListener('dragover', function(e) {
-                e.preventDefault();
-            });
-
-            timelineContainer.addEventListener('drop', function(e) {
-                e.preventDefault();
-                const index = parseInt(e.dataTransfer.getData('text/plain'));
-                const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left - 20;
-
-                // Reposition block
-                const blocks = this.querySelectorAll('div[draggable]');
-                const targetBlock = blocks[Math.floor(x / 50)];
-                if (targetBlock && targetBlock !== blocks[index]) {
-                    // Reorder blocks
-                    const targetIndex = Array.from(blocks).indexOf(targetBlock);
-                    blocks[index].style.left = `${targetIndex * 50}px`;
-                }
-            });
-        }
-
-        // Initialize video functionality
-        function initVideo() {
-            const videoContainer = document.getElementById('video-container');
-
-            // Create simple video player UI
-            videoContainer.innerHTML = `
-                <video style="width: 100%; height: 100%; object-fit: contain;" controls>
-                    <source src="#" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <div style="margin-top: 10px;">
-                    <input type="file" accept="video/*" style="display: none;" id="video-input">
-                    <button class="btn btn-primary" onclick="document.getElementById('video-input').click()">
-                        Upload Video
-                    </button>
-                    <button class="btn btn-success" onclick="syncSubtitles()">
-                        Sync Subtitles
-                    </button>
-                </div>
-            `;
-
-            // Handle video upload
-            document.getElementById('video-input').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const videoUrl = URL.createObjectURL(file);
-                    const video = document.querySelector('#video-container video source');
-                    video.src = videoUrl;
-                    video.load();
-                }
-            });
-        }
-
-        // Sync subtitles with video
-        function syncSubtitles() {
-            const video = document.querySelector('#video-container video');
-            if (video.src && video.duration > 0) {
-                showSuccess('Subtitles synced with video! Current time: ' + video.currentTime.toFixed(2) + 's');
-            } else {
-                showError('Please upload a video first');
-            }
+            // Initialize TimelineEditor
+            TimelineEditor.init('editor-tab');
         }
 
         // Preview SRT
@@ -856,10 +895,24 @@
 
         // Initialize on page load
         window.addEventListener('load', function() {
-            // Check if user is PRO
-            if (localStorage.getItem('isProUser') === 'true') {
-                isProUser = true;
+            // Init auth system
+            const auth = AuthSystem.init();
+            isProUser = auth.isPro;
+            currentUser = AuthSystem.getCurrentUser();
+
+            if (isProUser) {
                 enablePROFeatures();
+                updateUserBar();
+            }
+
+            // Init upload tab SRT editor auto-save
+            if (document.getElementById('srt-editor')) {
+                document.getElementById('srt-editor').addEventListener('input', function() {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        currentSRT = getEditorContent();
+                    }, 2000);
+                });
             }
 
             // Initialize sticky CTA
@@ -880,6 +933,142 @@
                 }
             });
         });
+
+        // =============================================
+        // AUTH SYSTEM FUNCTIONS
+        // =============================================
+
+        // Show/hide auth modal
+        function showAuthModal(tab) {
+            document.getElementById('auth-modal').style.display = 'flex';
+            switchAuthTab(tab || 'login');
+        }
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('register-error').textContent = '';
+        }
+
+        // Switch between login and register tabs
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('auth-' + tab + '-form').classList.add('active');
+            document.getElementById('auth-tab-' + tab + '-btn').classList.add('active');
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('register-error').textContent = '';
+        }
+
+        // Handle login
+        function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorEl = document.getElementById('login-error');
+
+            const result = AuthSystem.login(email, password);
+            if (result.success) {
+                isProUser = result.isPro || false;
+                currentUser = { email: result.email };
+                closeAuthModal();
+                updateUserBar();
+                if (isProUser) {
+                    enablePROFeatures();
+                    showTab('editor');
+                } else {
+                    showSuccess('Logged in as ' + result.email);
+                }
+            } else {
+                errorEl.textContent = result.error;
+            }
+        }
+
+        // Handle registration
+        function handleRegister() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            const errorEl = document.getElementById('register-error');
+
+            if (password !== confirm) {
+                errorEl.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            const result = AuthSystem.register(email, password);
+            if (result.success) {
+                currentUser = { email: result.email };
+                closeAuthModal();
+                updateUserBar();
+                showSuccess('Account created! You are now logged in.');
+                // Check if they have a Pro license to activate
+                if (localStorage.getItem('isProUser') === 'true') {
+                    unlockPro();
+                }
+            } else {
+                errorEl.textContent = result.error;
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            AuthSystem.logout();
+            isProUser = false;
+            currentUser = null;
+            document.getElementById('user-bar').style.display = 'none';
+            showTab('upload');
+            showSuccess('Logged out successfully.');
+        }
+
+        // Show/hide license modal
+        function showLicenseModal() {
+            closeAuthModal();
+            document.getElementById('license-modal').style.display = 'flex';
+            if (currentUser) {
+                document.getElementById('license-email').value = currentUser.email || '';
+            }
+        }
+        function closeLicenseModal() {
+            document.getElementById('license-modal').style.display = 'none';
+            document.getElementById('license-error').textContent = '';
+        }
+
+        // Handle license key activation
+        function handleLicenseActivation() {
+            const email = document.getElementById('license-email').value;
+            const key = document.getElementById('license-key').value;
+            const errorEl = document.getElementById('license-error');
+
+            const result = AuthSystem.activatePro(email, key);
+            if (result.success) {
+                isProUser = true;
+                currentUser = { email: result.email };
+                closeLicenseModal();
+                updateUserBar();
+                enablePROFeatures();
+                showTab('editor');
+                showSuccess('✅ Pro license activated! Welcome to the timeline editor.');
+            } else {
+                errorEl.textContent = result.error;
+            }
+        }
+
+        // Update user bar display
+        function updateUserBar() {
+            const bar = document.getElementById('user-bar');
+            const emailEl = document.getElementById('user-bar-email');
+            const badgeEl = document.getElementById('user-bar-badge');
+            if (!bar || !emailEl) return;
+
+            if (currentUser && currentUser.email) {
+                bar.style.display = 'flex';
+                emailEl.textContent = currentUser.email;
+                if (badgeEl) {
+                    badgeEl.style.display = isProUser ? 'inline-block' : 'none';
+                }
+            } else {
+                bar.style.display = 'none';
+            }
+        }
 
         // Simple SRT parsing function
         function parseSRTText(text) {
