@@ -28,7 +28,8 @@ const TimelineEditor = (() => {
         playbackRate: 1,
         mediaRecorder: null,
         recordedChunks: [],
-        extractedSubtitles: null
+        extractedSubtitles: null,
+        isInlineEditing: false
     };
 
     // ---- DOM refs (set during init) ----
@@ -379,18 +380,23 @@ const TimelineEditor = (() => {
         inner.appendChild(playhead);
 
         // ---- Track labels ----
-        const labels = [
-            { text: '🎬 Video', y: TIMELINE_HEADER_HEIGHT + TRACK_HEIGHT / 2 }
-        ];
+        const labels = [];
+        let labelIndex = 0;
+        if (state.videoFile) {
+            labels.push({ text: 'Video', icon: '🎬', color: '#FF6B35', y: TIMELINE_HEADER_HEIGHT + TRACK_HEIGHT / 2, idx: 0 });
+            labelIndex++;
+        }
         if (state.waveformData) {
-            labels.push({ text: '🎵 Audio', y: TIMELINE_HEADER_HEIGHT + (state.videoFile ? TRACK_HEIGHT + 2 : 0) + TRACK_HEIGHT / 2 });
+            const audioTrackY = TIMELINE_HEADER_HEIGHT + (state.videoFile ? TRACK_HEIGHT + 2 : 0);
+            labels.push({ text: 'Audio', icon: '🎵', color: '#2EC4B6', y: audioTrackY + TRACK_HEIGHT / 2, idx: labelIndex });
+            labelIndex++;
         }
         const subTrackY = TIMELINE_HEADER_HEIGHT + 
             (state.videoFile ? TRACK_HEIGHT + 2 : 0) + 
             (state.waveformData ? TRACK_HEIGHT + 2 : 0);
-        labels.push({ text: '📝 Subtitles', y: subTrackY + TRACK_HEIGHT / 2 });
+        labels.push({ text: 'Subtitles', icon: '📝', color: '#FFB703', y: subTrackY + TRACK_HEIGHT / 2, idx: labelIndex });
 
-        // Actually, let me add labels as a fixed left column overlay
+        // Track labels as styled left column
         const labelOverlay = document.createElement('div');
         labelOverlay.style.cssText = `
             position:absolute;top:0;left:0;width:${TRACK_LABEL_WIDTH}px;
@@ -399,20 +405,30 @@ const TimelineEditor = (() => {
         labels.forEach(l => {
             const label = document.createElement('div');
             label.style.cssText = `
-                position:absolute;left:8px;top:${l.y - 10}px;
-                font-size:0.78rem;font-weight:600;color:var(--c-dark-2);
-                white-space:nowrap;
+                position:absolute;left:0;right:0;
+                top:${l.y - TRACK_HEIGHT / 2}px;height:${TRACK_HEIGHT}px;
+                display:flex;align-items:center;gap:6px;
+                padding:0 8px;
+                border-left:3px solid ${l.color};
+                opacity:0.85;
             `;
-            label.textContent = l.text;
+            label.innerHTML = `
+                <span style="font-size:0.85rem;">${l.icon}</span>
+                <span style="font-size:0.72rem;font-weight:600;color:var(--c-light);letter-spacing:0.3px;">${l.text}</span>
+            `;
             labelOverlay.appendChild(label);
         });
         // Ruler corner
         const rulerCorner = document.createElement('div');
         rulerCorner.style.cssText = `
             position:absolute;top:0;left:0;width:${TRACK_LABEL_WIDTH}px;height:${TIMELINE_HEADER_HEIGHT}px;
-            background:var(--c-dark-2);border-bottom:1px solid var(--c-dark-3);
+            background:linear-gradient(135deg, #1E293B, #0F172A);
+            border-bottom:1px solid rgba(255,255,255,0.1);
+            border-right:1px solid rgba(255,255,255,0.05);
             z-index:51;border-radius:4px 0 0 0;
+            display:flex;align-items:center;justify-content:center;
         `;
+        rulerCorner.innerHTML = `<span style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-weight:500;letter-spacing:0.5px;">TIME</span>`;
         labelOverlay.appendChild(rulerCorner);
 
         inner.appendChild(labelOverlay);
@@ -429,36 +445,41 @@ const TimelineEditor = (() => {
             position:sticky;top:0;left:${TRACK_LABEL_WIDTH}px;
             height:${TIMELINE_HEADER_HEIGHT}px;
             background:linear-gradient(135deg, #1E293B, #0F172A);
-            border-bottom:1px solid var(--c-dark-3);
+            border-bottom:1px solid rgba(255,255,255,0.1);
             z-index:80;border-radius:4px 4px 0 0;
             margin-left:${TRACK_LABEL_WIDTH}px;
         `;
 
-        // Determine interval based on zoom
-        let interval = 5; // seconds between major ticks
-        if (state.zoom < 0.5) interval = 30;
-        else if (state.zoom < 1) interval = 10;
-        else if (state.zoom < 2) interval = 5;
-        else if (state.zoom < 4) interval = 2;
-        else interval = 1;
+        // Determine intervals based on zoom
+        let majorInterval = 5; // seconds between major ticks
+        let minorCount = 5; // minor ticks per major
+        
+        if (state.zoom < 0.5) { majorInterval = 30; minorCount = 6; }
+        else if (state.zoom < 1) { majorInterval = 10; minorCount = 5; }
+        else if (state.zoom < 2) { majorInterval = 5; minorCount = 5; }
+        else if (state.zoom < 4) { majorInterval = 2; minorCount = 4; }
+        else if (state.zoom < 6) { majorInterval = 1; minorCount = 5; }
+        else { majorInterval = 0.5; minorCount = 5; }
 
-        // Frame markers
-        const frameInterval = 1 / state.fps;
+        const minorInterval = majorInterval / minorCount;
 
-        for (let t = 0; t <= duration + interval; t += frameInterval) {
-            // Only show major ticks
-            const isMajor = Math.abs(t % interval) < frameInterval / 2;
-            const isMinor = isMajor || Math.abs(t % (interval / 5)) < frameInterval / 2;
+        for (let t = 0; t <= duration + majorInterval; t += minorInterval) {
+            // Determine if major or minor
+            const isMajor = Math.abs(t % majorInterval) < 0.001;
+            const isMid = Math.abs(t % (majorInterval / 2)) < 0.001;
             
-            if (!isMinor && state.zoom < 2) continue;
+            const x = t * pixelsPerSec;
+            
+            // Skip if too dense (for minor ticks at low zoom)
             if (!isMajor && state.zoom < 1) continue;
 
-            const x = t * pixelsPerSec;
             const marker = document.createElement('div');
+            const height = isMajor ? '100%' : (isMid ? '60%' : '35%');
+            const opacity = isMajor ? 0.5 : (isMid ? 0.25 : 0.12);
             marker.style.cssText = `
-                position:absolute;left:${x}px;top:0;
-                width:1px;height:${isMajor ? '100%' : '50%'};
-                background:${isMajor ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)'};
+                position:absolute;left:${x}px;top:${isMajor ? '0' : (TIMELINE_HEADER_HEIGHT - parseInt(height) + 'px')};
+                width:1px;height:${height};
+                background:rgba(255,255,255,${opacity});
                 pointer-events:none;
             `;
             ruler.appendChild(marker);
@@ -466,14 +487,26 @@ const TimelineEditor = (() => {
             if (isMajor) {
                 const label = document.createElement('div');
                 label.style.cssText = `
-                    position:absolute;left:${x + 4}px;top:2px;
-                    font-size:0.68rem;color:var(--c-gray);font-family:'Courier New',monospace;
+                    position:absolute;left:${x + 5}px;top:3px;
+                    font-size:0.65rem;color:rgba(255,255,255,0.6);
+                    font-family:'Courier New',monospace;
+                    font-weight:500;letter-spacing:0.5px;
                     white-space:nowrap;pointer-events:none;
+                    text-shadow:0 1px 2px rgba(0,0,0,0.5);
                 `;
                 label.textContent = formatTimeShort(t);
                 ruler.appendChild(label);
             }
         }
+
+        // Time scale indicator (bottom edge glow)
+        const bottomGlow = document.createElement('div');
+        bottomGlow.style.cssText = `
+            position:absolute;bottom:0;left:0;right:0;height:1px;
+            background:linear-gradient(90deg, transparent, var(--c-primary), transparent);
+            opacity:0.3;
+        `;
+        ruler.appendChild(bottomGlow);
 
         return ruler;
     }
@@ -555,33 +588,70 @@ const TimelineEditor = (() => {
             const h = canvas.height;
             const mid = h / 2;
 
-            // Draw waveform
-            ctx.fillStyle = 'rgba(46, 196, 182, 0.3)';
-            ctx.strokeStyle = 'rgba(46, 196, 182, 0.8)';
-            ctx.lineWidth = 1;
-
+            // Draw waveform with amplitude-based coloring
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.moveTo(0, mid);
+            
             for (let i = 0; i < data.length; i++) {
                 const x = (i / data.length) * w;
                 const val = data[i] * mid * 0.8;
-                ctx.lineTo(x, mid - val);
+                
+                // Color based on amplitude (green=quiet, yellow=medium, red=loud)
+                const amp = Math.abs(val) / mid;
+                let r, g, b;
+                if (amp < 0.3) {
+                    r = 46; g = 196; b = 182; // teal / quiet
+                } else if (amp < 0.6) {
+                    r = 255; g = 183; b = 3; // gold / medium
+                } else {
+                    r = 255; g = 107; b = 53; // orange / loud
+                }
+                
+                ctx.strokeStyle = `rgba(${r},${g},${b},0.7)`;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, mid - val);
+                } else {
+                    ctx.lineTo(x, mid - val);
+                }
             }
-            ctx.lineTo(w, mid);
             ctx.stroke();
 
+            // Draw bottom half
             ctx.beginPath();
-            ctx.moveTo(0, mid);
             for (let i = 0; i < data.length; i++) {
                 const x = (i / data.length) * w;
                 const val = data[i] * mid * 0.8;
-                ctx.lineTo(x, mid + val);
+                
+                const amp = Math.abs(val) / mid;
+                let r, g, b;
+                if (amp < 0.3) {
+                    r = 46; g = 196; b = 182;
+                } else if (amp < 0.6) {
+                    r = 255; g = 183; b = 3;
+                } else {
+                    r = 255; g = 107; b = 53;
+                }
+                
+                ctx.strokeStyle = `rgba(${r},${g},${b},0.7)`;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, mid + val);
+                } else {
+                    ctx.lineTo(x, mid + val);
+                }
             }
-            ctx.lineTo(w, mid);
             ctx.stroke();
 
-            // Fill waveform area
-            ctx.fillStyle = 'rgba(46, 196, 182, 0.1)';
+            // Fill waveform area with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, 'rgba(46, 196, 182, 0.15)');
+            gradient.addColorStop(0.3, 'rgba(255, 183, 3, 0.08)');
+            gradient.addColorStop(0.5, 'rgba(255, 107, 53, 0.05)');
+            gradient.addColorStop(0.7, 'rgba(255, 183, 3, 0.08)');
+            gradient.addColorStop(1, 'rgba(46, 196, 182, 0.15)');
+            
+            ctx.fillStyle = gradient;
             ctx.beginPath();
             ctx.moveTo(0, mid);
             for (let i = 0; i < data.length; i++) {
@@ -599,23 +669,28 @@ const TimelineEditor = (() => {
             ctx.fill();
         }
 
-        // Draw vocal segments overlay
+        // Draw vocal segments overlay with gradient
         if (state.vocalSegments && state.vocalSegments.length > 0) {
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
-            ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
-            ctx.lineWidth = 1;
-
             for (const seg of state.vocalSegments) {
                 const x = (seg.start / duration) * canvas.width;
-                const w = ((seg.end - seg.start) / duration) * canvas.width;
-                ctx.fillRect(x, 0, w, canvas.height);
-                ctx.strokeRect(x, 0, w, canvas.height);
-
-                // "VOICE" label
-                ctx.fillStyle = 'rgba(16, 185, 129, 0.6)';
-                ctx.font = '10px Inter, sans-serif';
-                ctx.fillText('🗣', x + 4, 14);
-                ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+                const segW = ((seg.end - seg.start) / duration) * canvas.width;
+                
+                // Gradient fill
+                const grad = ctx.createLinearGradient(x, 0, x + segW, 0);
+                grad.addColorStop(0, 'rgba(16, 185, 129, 0.05)');
+                grad.addColorStop(0.5, 'rgba(16, 185, 129, 0.2)');
+                grad.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(x, 0, segW, canvas.height);
+                
+                // Top accent
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
+                ctx.fillRect(x, 0, segW, 2);
+                
+                // Voice indicator
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.5)';
+                ctx.font = '9px Inter, sans-serif';
+                ctx.fillText('🎤', x + 4, 12);
             }
         }
 
@@ -662,29 +737,60 @@ const TimelineEditor = (() => {
             track.appendChild(block);
         });
 
-        // Click to add subtitle at position
+        // Click to seek video to position
+        track.addEventListener('click', (e) => {
+            const rect = track.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const clickTime = x / pixelsPerSec;
+            
+            // Don't seek if clicking on a subtitle block
+            const clickedBlock = e.target.closest('[data-index]');
+            if (clickedBlock) return;
+            
+            // Seek video to clicked position
+            const video = document.getElementById('timeline-video');
+            if (video && state.videoUrl) {
+                video.currentTime = Math.max(0, Math.min(duration, clickTime));
+                state.currentTime = video.currentTime;
+                updateTimeDisplay();
+                updatePlayhead();
+            }
+        });
+
+        // Double-click to add subtitle at position (with text prompt)
         track.addEventListener('dblclick', (e) => {
             const rect = track.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const clickTime = x / pixelsPerSec;
             
-            // Find if we clicked on an existing block
-            const clicked = state.subtitles.find(s => s.start <= clickTime && s.end >= clickTime);
-            if (clicked) return;
+            // Don't add if clicking on existing block
+            const clickedBlock = e.target.closest('[data-index]');
+            if (clickedBlock) return;
+
+            // Check if we're in the subtitle track (not above it)
+            // by verifying the click is in the track area
+            const trackTop = track.getBoundingClientRect().top;
+            if (e.clientY < trackTop || e.clientY > trackTop + TRACK_HEIGHT) return;
+
+            // Prompt for text immediately
+            const text = prompt('Enter subtitle text:', '');
+            if (text === null) return; // cancelled
 
             // Add new subtitle
             const newSub = {
                 index: state.subtitles.length,
                 sequence: state.subtitles.length + 1,
-                start: Math.max(0, clickTime - 1),
-                end: Math.min(duration, clickTime + 2),
-                text: 'New subtitle',
+                start: Math.max(0, clickTime - 1.5),
+                end: Math.min(duration, clickTime + 1.5),
+                text: text.trim() || 'New subtitle',
                 duration: 3
             };
             state.subtitles.push(newSub);
+            state.selectedSubIndex = state.subtitles.length - 1;
+            pushHistory();
             renderTimeline();
             updateSRTEditor();
-            showToast('New subtitle block added. Double-click block to edit text.');
+            showToast('New subtitle block added!');
         });
 
         return track;
@@ -704,53 +810,84 @@ const TimelineEditor = (() => {
             width:${width}px;
             height:${TRACK_HEIGHT - 8}px;
             background:${isSelected 
-                ? 'linear-gradient(135deg, rgba(255,107,53,0.4), rgba(255,183,3,0.3))'
-                : 'linear-gradient(135deg, rgba(46,196,182,0.3), rgba(16,185,129,0.2))'};
-            border:${isSelected ? '2px solid var(--c-primary)' : '1px solid rgba(46,196,182,0.5)'};
-            border-radius:4px;
+                ? 'linear-gradient(135deg, rgba(255,107,53,0.55), rgba(255,183,3,0.35))'
+                : 'linear-gradient(135deg, rgba(46,196,182,0.35), rgba(16,185,129,0.2))'};
+            border:${isSelected ? '2px solid var(--c-primary)' : '1px solid rgba(46,196,182,0.45)'};
+            border-radius:6px;
             cursor:grab;
             user-select:none;
-            z-index:${isSelected ? 20 : 10};
-            transition:box-shadow 0.15s;
+            z-index:${isSelected ? 25 : 10};
+            transition:box-shadow 0.2s, border-color 0.2s, transform 0.1s;
             display:flex;flex-direction:column;
             overflow:hidden;
+            box-shadow:${isSelected 
+                ? '0 0 16px rgba(255,107,53,0.35), 0 2px 8px rgba(0,0,0,0.3)'
+                : '0 1px 4px rgba(0,0,0,0.2)'};
         `;
         block.dataset.index = index;
+
+        // Selection glow overlay (top accent line)
+        if (isSelected) {
+            const glow = document.createElement('div');
+            glow.style.cssText = `
+                position:absolute;top:0;left:0;right:0;height:3px;
+                background:linear-gradient(90deg, var(--c-primary), var(--c-gold));
+                border-radius:6px 6px 0 0;
+            `;
+            block.appendChild(glow);
+        }
 
         // Resize handles
         const handles = ['left', 'right'];
         handles.forEach(side => {
             const handle = document.createElement('div');
             handle.style.cssText = `
-                position:absolute;top:0;bottom:0;width:6px;
+                position:absolute;top:0;bottom:0;width:8px;
                 cursor:ew-resize;z-index:15;
                 ${side === 'left' ? 'left:0;' : 'right:0;'}
-                background:rgba(255,255,255,0.1);
-                border-radius:${side === 'left' ? '4px 0 0 4px' : '0 4px 4px 0'};
-                opacity:0;transition:opacity 0.15s;
+                background:${isSelected 
+                    ? 'linear-gradient(to right, rgba(255,107,53,0.3), transparent)' 
+                    : 'rgba(255,255,255,0.08)'};
+                ${side === 'right' ? 'background:linear-gradient(to left, rgba(255,107,53,0.3), transparent);' : ''}
+                border-radius:${side === 'left' ? '6px 0 0 6px' : '0 6px 6px 0'};
+                opacity:0;transition:opacity 0.15s, background 0.2s;
             `;
             handle.className = `resize-${side}`;
             block.appendChild(handle);
         });
 
-        // Label
+        // Sequence number badge
+        const seqBadge = document.createElement('div');
+        seqBadge.style.cssText = `
+            position:absolute;top:2px;right:4px;
+            font-size:0.55rem;font-weight:700;
+            color:rgba(255,255,255,0.6);
+            background:rgba(0,0,0,0.3);
+            padding:0 4px;border-radius:3px;
+            pointer-events:none;z-index:5;
+        `;
+        seqBadge.textContent = `#${sub.sequence}`;
+        block.appendChild(seqBadge);
+
+        // Label (time range)
         const label = document.createElement('div');
         label.style.cssText = `
-            font-size:0.65rem;color:white;padding:2px 6px;
+            font-size:0.6rem;color:rgba(255,255,255,0.8);padding:2px 6px 0;
             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-            font-weight:500;
+            font-weight:500;letter-spacing:0.3px;
         `;
-        label.textContent = `#${sub.sequence} · ${formatTimeShort(sub.start)} - ${formatTimeShort(sub.end)}`;
+        label.textContent = `${formatTimeShort(sub.start)} - ${formatTimeShort(sub.end)} · ${sub.duration.toFixed(1)}s`;
         block.appendChild(label);
 
-        // Text preview
+        // Text preview (click to edit)
         const textPreview = document.createElement('div');
+        textPreview.className = 'subtitle-text-preview';
         textPreview.style.cssText = `
-            font-size:0.68rem;color:rgba(255,255,255,0.7);padding:0 6px 2px;
+            font-size:0.68rem;color:rgba(255,255,255,0.85);padding:0 6px 2px;
             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-            flex:1;
+            flex:1;cursor:text;line-height:1.3;
         `;
-        textPreview.textContent = sub.text.substring(0, 50);
+        textPreview.textContent = sub.text.substring(0, 60);
         block.appendChild(textPreview);
 
         // ---- Events ----
@@ -769,7 +906,10 @@ const TimelineEditor = (() => {
                 state.dragStartX = e.clientX;
                 state.dragStartTime = sub.end;
                 e.stopPropagation();
-            } else {
+            } else if (e.target.classList.contains('subtitle-text-preview')) {
+                // Let inline editor handle this
+                return;
+            } else if (!state.isInlineEditing) {
                 state.isDragging = true;
                 state.dragType = 'move';
                 state.dragSubIndex = index;
@@ -781,18 +921,73 @@ const TimelineEditor = (() => {
             }
         });
 
-        // Double-click to edit text
-        block.addEventListener('dblclick', (e) => {
-            if (e.target.classList.contains('resize-left') || e.target.classList.contains('resize-right')) return;
+        // Double-click on text preview to inline-edit
+        textPreview.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
             state.selectedSubIndex = index;
-            renderTimeline();
+            state.isInlineEditing = true;
             
-            const newText = prompt('Edit subtitle text:', sub.text);
-            if (newText !== null && newText.trim()) {
-                state.subtitles[index].text = newText.trim();
+            // Replace text preview with input
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = sub.text;
+            input.style.cssText = `
+                position:absolute;top:18px;left:2px;right:2px;
+                padding:2px 6px;font-size:0.7rem;
+                border:2px solid var(--c-primary);
+                border-radius:4px;
+                background:rgba(15,23,42,0.95);
+                color:white;
+                outline:none;
+                z-index:30;
+                font-family:inherit;
+                width:auto;
+            `;
+            input.dataset.subIndex = index;
+            block.style.overflow = 'visible';
+            block.style.zIndex = 50;
+            block.appendChild(input);
+            input.focus();
+            input.select();
+
+            const saveEdit = () => {
+                const val = input.value.trim();
+                if (val) {
+                    state.subtitles[index].text = val;
+                    state.isInlineEditing = false;
+                    pushHistory();
+                    renderTimeline();
+                    updateSRTEditor();
+                }
+            };
+
+            const cancelEdit = () => {
+                state.isInlineEditing = false;
                 renderTimeline();
-                updateSRTEditor();
-            }
+            };
+
+            input.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    saveEdit();
+                } else if (ev.key === 'Escape') {
+                    ev.preventDefault();
+                    cancelEdit();
+                }
+                ev.stopPropagation();
+            });
+
+            input.addEventListener('blur', () => {
+                // Small delay to allow click on other elements
+                setTimeout(() => {
+                    if (state.isInlineEditing) {
+                        saveEdit();
+                    }
+                }, 150);
+            });
+
+            // Prevent block mousedown when clicking input
+            input.addEventListener('mousedown', (ev) => ev.stopPropagation());
         });
 
         // Hover effect for handles
@@ -800,7 +995,7 @@ const TimelineEditor = (() => {
             block.querySelectorAll('.resize-left, .resize-right').forEach(h => h.style.opacity = '1');
         });
         block.addEventListener('mouseleave', () => {
-            if (!state.isDragging) {
+            if (!state.isDragging && !state.isInlineEditing) {
                 block.querySelectorAll('.resize-left, .resize-right').forEach(h => h.style.opacity = '0');
             }
         });
@@ -828,13 +1023,22 @@ const TimelineEditor = (() => {
                 if (newStart < 0) { newStart = 0; newEnd = sub.end - sub.start; }
                 if (newEnd > state.videoDuration) { newEnd = state.videoDuration; newStart = newEnd - (sub.end - sub.start); }
                 
-                // Snap to nearby vocal segments (if enabled)
-                if (state.snapEnabled && state.vocalSegments.length > 0) {
-                    for (const seg of state.vocalSegments) {
-                        if (Math.abs(newStart - seg.start) < 0.3) { newStart = seg.start; break; }
-                        if (Math.abs(newStart - seg.end) < 0.3) { newStart = seg.end; break; }
+                // Snap to nearby vocal segments and subtitle boundaries (if enabled)
+                if (state.snapEnabled) {
+                    // Snap to vocal segments
+                    if (state.vocalSegments.length > 0) {
+                        for (const seg of state.vocalSegments) {
+                            if (Math.abs(newStart - seg.start) < 0.3) { newStart = seg.start; break; }
+                            if (Math.abs(newStart - seg.end) < 0.3) { newStart = seg.end; break; }
+                        }
+                        newEnd = newStart + (sub.end - sub.start);
                     }
-                    newEnd = newStart + (sub.end - sub.start);
+                    // Snap to other subtitle boundaries
+                    for (const other of state.subtitles) {
+                        if (other === sub) continue;
+                        if (Math.abs(newStart - other.end) < 0.3) { newStart = other.end; break; }
+                        if (Math.abs(newEnd - other.start) < 0.3) { newEnd = other.start; break; }
+                    }
                 }
 
                 sub.start = Math.max(0, newStart);
@@ -892,11 +1096,44 @@ const TimelineEditor = (() => {
                 <video id="timeline-video" class="editor-video-element" preload="metadata">
                     <source src="${state.videoUrl}" type="${state.videoFile.type}">
                 </video>
+                <div id="subtitle-preview-overlay" style="
+                    position:absolute;bottom:85px;left:50%;transform:translateX(-50%);
+                    background:rgba(0,0,0,0.75);color:white;
+                    padding:8px 20px;border-radius:8px;
+                    font-size:1.2rem;font-weight:500;
+                    text-align:center;max-width:80%;
+                    pointer-events:none;transition:opacity 0.2s;
+                    opacity:0;font-family:'Inter',sans-serif;
+                    backdrop-filter:blur(4px);
+                    border:1px solid rgba(255,255,255,0.1);
+                "></div>
+                <!-- Video seek bar -->
+                <div id="video-seek-bar" style="
+                    position:absolute;bottom:55px;left:0;right:0;height:6px;
+                    background:rgba(255,255,255,0.15);cursor:pointer;
+                    z-index:10;
+                ">
+                    <div id="video-seek-progress" style="
+                        height:100%;width:0%;
+                        background:linear-gradient(90deg, var(--c-primary), var(--c-gold));
+                        border-radius:0 3px 3px 0;
+                        transition:width 0.1s linear;
+                    "></div>
+                    <div id="video-seek-thumb" style="
+                        position:absolute;top:-4px;width:14px;height:14px;
+                        border-radius:50%;background:var(--c-primary);
+                        left:0%;margin-left:-7px;
+                        box-shadow:0 0 8px rgba(255,107,53,0.6);
+                        opacity:0;transition:opacity 0.2s;
+                    "></div>
+                </div>
                 <div class="editor-video-controls">
-                    <button class="editor-btn-icon" onclick="TimelineEditor.togglePlay()" title="Play/Pause">
+                    <button class="editor-btn-icon" onclick="TimelineEditor.togglePlay()" title="Play/Pause (Space)">
                         <span id="play-btn-icon">▶</span>
                     </button>
                     <button class="editor-btn-icon" onclick="TimelineEditor.seekRelative(-5)" title="Back 5s">⏪</button>
+                    <button class="editor-btn-icon" onclick="TimelineEditor.seekToPrevSubtitle()" title="Previous Subtitle (←)">⏮</button>
+                    <button class="editor-btn-icon" onclick="TimelineEditor.seekToNextSubtitle()" title="Next Subtitle (→)">⏭</button>
                     <button class="editor-btn-icon" onclick="TimelineEditor.seekRelative(5)" title="Forward 5s">⏩</button>
                     <span class="editor-time-display" id="time-display">00:00:00:00 / 00:00:00:00</span>
                     <div class="editor-speed-control">
@@ -909,7 +1146,7 @@ const TimelineEditor = (() => {
                             <option value="2">2x</option>
                         </select>
                     </div>
-                    <button class="editor-btn-icon" onclick="TimelineEditor.toggleSnap()" title="Toggle Snap">
+                    <button class="editor-btn-icon" onclick="TimelineEditor.toggleSnap()" title="Toggle Snap (click timeline edge)">
                         <span id="snap-btn-icon">🔗</span>
                     </button>
                     <span class="editor-snap-label" id="snap-label">Snap</span>
@@ -919,12 +1156,61 @@ const TimelineEditor = (() => {
 
         // Setup video element
         const video = document.getElementById('timeline-video');
+        const subtitleOverlay = document.getElementById('subtitle-preview-overlay');
         if (video) {
             video.addEventListener('timeupdate', () => {
                 state.currentTime = video.currentTime;
                 updateTimeDisplay();
                 updatePlayhead();
+                updateActiveSubtitleHighlight();
+                
+                // Update seek bar
+                const seekProgress = document.getElementById('video-seek-progress');
+                const seekThumb = document.getElementById('video-seek-thumb');
+                if (seekProgress && state.videoDuration > 0) {
+                    const pct = (state.currentTime / state.videoDuration) * 100;
+                    seekProgress.style.width = pct + '%';
+                    if (seekThumb) seekThumb.style.left = pct + '%';
+                }
+                
+                // Show current subtitle text as overlay
+                if (subtitleOverlay && state.subtitles.length > 0) {
+                    const activeSub = state.subtitles.find(s => 
+                        state.currentTime >= s.start && state.currentTime <= s.end
+                    );
+                    if (activeSub) {
+                        subtitleOverlay.textContent = activeSub.text;
+                        subtitleOverlay.style.opacity = '1';
+                    } else {
+                        subtitleOverlay.style.opacity = '0';
+                    }
+                }
             });
+
+            // Seek bar click handler
+            const seekBar = document.getElementById('video-seek-bar');
+            const seekThumbEl = document.getElementById('video-seek-thumb');
+            if (seekBar) {
+                // Show thumb on hover
+                seekBar.addEventListener('mouseenter', () => {
+                    if (seekThumbEl) seekThumbEl.style.opacity = '1';
+                });
+                seekBar.addEventListener('mouseleave', () => {
+                    if (seekThumbEl) seekThumbEl.style.opacity = '0';
+                });
+                
+                seekBar.addEventListener('click', (e) => {
+                    const rect = seekBar.getBoundingClientRect();
+                    const pct = (e.clientX - rect.left) / rect.width;
+                    const seekTime = pct * state.videoDuration;
+                    if (video && state.videoUrl) {
+                        video.currentTime = Math.max(0, Math.min(state.videoDuration, seekTime));
+                        state.currentTime = video.currentTime;
+                        updateTimeDisplay();
+                        updatePlayhead();
+                    }
+                });
+            }
 
             video.addEventListener('play', () => {
                 state.isPlaying = true;
@@ -986,6 +1272,60 @@ const TimelineEditor = (() => {
         }
     }
 
+    function seekToPrevSubtitle() {
+        const video = document.getElementById('timeline-video');
+        if (!video || state.subtitles.length === 0) return;
+        const currentTime = video.currentTime;
+        let prevSub = null;
+        for (const sub of state.subtitles) {
+            if (sub.end < currentTime - 0.1) {
+                prevSub = sub;
+            } else {
+                break;
+            }
+        }
+        if (prevSub) {
+            video.currentTime = prevSub.start;
+            state.currentTime = prevSub.start;
+            state.selectedSubIndex = state.subtitles.indexOf(prevSub);
+            renderTimeline();
+            updateSRTEditor();
+            updateTimeDisplay();
+            updatePlayhead();
+        } else {
+            // If no previous subtitle, go to start of first
+            video.currentTime = state.subtitles[0].start;
+            state.currentTime = state.subtitles[0].start;
+            state.selectedSubIndex = 0;
+            renderTimeline();
+            updateSRTEditor();
+            updateTimeDisplay();
+            updatePlayhead();
+        }
+    }
+
+    function seekToNextSubtitle() {
+        const video = document.getElementById('timeline-video');
+        if (!video || state.subtitles.length === 0) return;
+        const currentTime = video.currentTime;
+        let nextSub = null;
+        for (const sub of state.subtitles) {
+            if (sub.start > currentTime + 0.1) {
+                nextSub = sub;
+                break;
+            }
+        }
+        if (nextSub) {
+            video.currentTime = nextSub.start;
+            state.currentTime = nextSub.start;
+            state.selectedSubIndex = state.subtitles.indexOf(nextSub);
+            renderTimeline();
+            updateSRTEditor();
+            updateTimeDisplay();
+            updatePlayhead();
+        }
+    }
+
     function setPlaybackRate(rate) {
         const video = document.getElementById('timeline-video');
         if (video) {
@@ -1018,6 +1358,36 @@ const TimelineEditor = (() => {
         if (!playhead) return;
         const pixelsPerSec = PIXELS_PER_SECOND_BASE * state.zoom;
         playhead.style.left = `${120 + state.currentTime * pixelsPerSec}px`;
+    }
+
+    // Lightweight active subtitle highlight (no full re-render)
+    function updateActiveSubtitleHighlight() {
+        const blocks = document.querySelectorAll('[data-index]');
+        let activeIndex = -1;
+        const now = state.currentTime;
+        for (let i = 0; i < state.subtitles.length; i++) {
+            const s = state.subtitles[i];
+            if (now >= s.start && now <= s.end) {
+                activeIndex = i;
+                break;
+            }
+        }
+        blocks.forEach(el => {
+            const idx = parseInt(el.dataset.index);
+            if (idx === activeIndex) {
+                el.style.boxShadow = '0 0 20px rgba(46,196,182,0.5), 0 2px 8px rgba(0,0,0,0.3)';
+                el.style.borderColor = 'rgba(46,196,182,0.8)';
+                el.style.zIndex = '22';
+            } else if (idx === state.selectedSubIndex) {
+                el.style.boxShadow = '0 0 16px rgba(255,107,53,0.35), 0 2px 8px rgba(0,0,0,0.3)';
+                el.style.borderColor = 'var(--c-primary)';
+                el.style.zIndex = '25';
+            } else {
+                el.style.boxShadow = '0 1px 4px rgba(0,0,0,0.2)';
+                el.style.borderColor = 'rgba(46,196,182,0.45)';
+                el.style.zIndex = '10';
+            }
+        });
     }
 
     // =============================================
@@ -1452,6 +1822,81 @@ const TimelineEditor = (() => {
     }
 
     // =============================================
+    // KEYBOARD SHORTCUTS
+    // =============================================
+    function initKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Don't handle shortcuts when editing inline
+            if (state.isInlineEditing) return;
+            
+            const target = e.target;
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+            switch (e.key.toLowerCase()) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'delete':
+                case 'backspace':
+                    if (state.selectedSubIndex >= 0) {
+                        e.preventDefault();
+                        deleteSelectedSubtitle();
+                    }
+                    break;
+                case 'z':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            redo();
+                        } else {
+                            undo();
+                        }
+                    }
+                    break;
+                case 'y':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        redo();
+                    }
+                    break;
+                case 'arrowleft':
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        seekRelative(-0.04);
+                    } else {
+                        e.preventDefault();
+                        if (state.selectedSubIndex > 0) {
+                            state.selectedSubIndex--;
+                            renderTimeline();
+                            updateSRTEditor();
+                        }
+                    }
+                    break;
+                case 'arrowright':
+                    if (e.shiftKey) {
+                        e.preventDefault();
+                        seekRelative(0.04);
+                    } else {
+                        e.preventDefault();
+                        if (state.selectedSubIndex < state.subtitles.length - 1) {
+                            state.selectedSubIndex++;
+                            renderTimeline();
+                            updateSRTEditor();
+                        }
+                    }
+                    break;
+                case 's':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        exportSRT();
+                    }
+                    break;
+            }
+        });
+    }
+
+    // =============================================
     // INITIALIZATION
     // =============================================
     function init(containerId) {
@@ -1475,6 +1920,9 @@ const TimelineEditor = (() => {
 
         // Init drag handlers
         initDragHandlers();
+
+        // Init keyboard shortcuts
+        initKeyboardShortcuts();
 
         // Auto-resize timeline on window resize
         window.addEventListener('resize', () => {
@@ -1513,6 +1961,8 @@ const TimelineEditor = (() => {
         clearAllSubtitles,
         loadSRTFromEditor,
         selectSubtitleAtTime,
+        seekToPrevSubtitle,
+        seekToNextSubtitle,
         undo,
         redo,
         generateSRT,

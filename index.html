@@ -49,6 +49,8 @@
                     <span class="header-stat"><strong id="users-count">534</strong> Pro users</span>
                 </div>
                 <a href="#" onclick="showTab('pricing'); return false;" class="header-cta-btn">🔥 Go Pro</a>
+                <button onclick="toggleDarkMode()" class="header-icon-btn" id="dark-mode-toggle" title="Toggle Dark Mode">🌙</button>
+                <button onclick="showShortcuts()" class="header-icon-btn" title="Keyboard Shortcuts">⌨️</button>
             </div>
             <div class="header-value-prop">
                 <p>Edit subtitles professionally — <strong>100% in your browser</strong>, your files never leave your computer</p>
@@ -73,7 +75,7 @@
                 <div class="upload-section" id="upload-area">
                     <span class="upload-icon">📤</span>
                     <h3>Drop SRT file here or click to browse</h3>
-                    <p style="color: #666; margin-top: 10px;">Supports .srt files up to 50MB</p>
+                    <p>Supports .srt files up to 50MB</p>
                     <input type="file" accept=".srt" class="upload-input" id="file-input">
                     <label for="file-input" class="upload-label">Choose SRT File</label>
                 </div>
@@ -86,10 +88,90 @@
                         <h3>📝 SRT Editor</h3>
                         <div class="editor-actions">
                             <button class="btn btn-sm" onclick="clearEditorContent()">🗑️ Clear</button>
-                            <button class="btn btn-sm btn-primary" onclick="downloadSRT()">💾 Export .srt</button>
+                            <button class="btn btn-sm" onclick="previewSRT()">👁️ Preview</button>
                         </div>
                     </div>
                     <textarea id="srt-editor" class="srt-editor-textarea" spellcheck="false" placeholder="Paste or edit your SRT content here...&#10;Example:&#10;1&#10;00:00:01,000 --> 00:00:04,000&#10;Hello, welcome!"></textarea>
+                    
+                    <!-- Export Format Buttons -->
+                    <div class="export-toolbar">
+                        <button class="btn btn-sm btn-success" onclick="downloadSRT()">💾 Export .srt</button>
+                        <div class="pro-gated" id="pro-export-formats" style="display:flex;gap:6px;flex-wrap:wrap;">
+                            <button class="btn btn-sm btn-export-ass" onclick="downloadASS()">📥 Export .ass</button>
+                            <button class="btn btn-sm btn-export-vtt" onclick="downloadVTT()">📥 Export .vtt</button>
+                            <button class="btn btn-sm btn-export-txt" onclick="downloadTXT()">📥 Export .txt</button>
+                        </div>
+                        <div class="pro-gated" id="pro-export-lock" style="display:none;">
+                            <button class="btn btn-sm btn-pro-mini" onclick="showAuthModal('login')">🔒 Get Pro for multi-format</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Batch Operations Toggle -->
+                    <div style="margin-top:10px;">
+                        <button class="btn btn-sm btn-batch-toggle" onclick="toggleBatchOps()">⚙️ Batch Operations</button>
+                        <span class="pro-badge-sm" style="margin-left:6px;font-size:0.65rem;">Pro</span>
+                    </div>
+                    
+                    <!-- Batch Operations Panel -->
+                    <div class="batch-ops-panel" id="batch-ops-panel">
+                        <h4>⚙️ Batch Operations</h4>
+                        <div class="batch-ops-tabs">
+                            <button class="batch-ops-tab active" onclick="switchBatchOp('time-shift', this)">⏰ Time Shift</button>
+                            <button class="batch-ops-tab" onclick="switchBatchOp('renumber', this)">🔢 Renumber</button>
+                            <button class="batch-ops-tab" onclick="switchBatchOp('find-replace', this)">🔍 Find & Replace</button>
+                        </div>
+                        
+                        <!-- Time Shift -->
+                        <div class="batch-ops-pane active" id="pane-time-shift">
+                            <div class="batch-ops-row">
+                                <label>Offset (s):</label>
+                                <input type="number" id="batch-offset" value="1" step="0.5" min="-300" max="300">
+                                <span class="batch-ops-hint">Use negative values to shift backwards</span>
+                            </div>
+                            <div class="batch-ops-row">
+                                <button class="btn btn-sm btn-primary" onclick="batchTimeShift()">Apply Time Shift</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Renumber -->
+                        <div class="batch-ops-pane" id="pane-renumber">
+                            <div class="batch-ops-row">
+                                <label>Start at:</label>
+                                <input type="number" id="batch-start-num" value="1" min="1" max="9999">
+                            </div>
+                            <div class="batch-ops-row">
+                                <label>Step:</label>
+                                <input type="number" id="batch-step-num" value="1" min="1" max="100">
+                            </div>
+                            <div class="batch-ops-row">
+                                <button class="btn btn-sm btn-primary" onclick="batchRenumber()">Apply Renumber</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Find & Replace -->
+                        <div class="batch-ops-pane" id="pane-find-replace">
+                            <div class="batch-ops-row">
+                                <label>Find:</label>
+                                <input type="text" id="batch-find" placeholder="Text to find...">
+                            </div>
+                            <div class="batch-ops-row">
+                                <label>Replace:</label>
+                                <input type="text" id="batch-replace" placeholder="Replacement text...">
+                            </div>
+                            <div class="batch-ops-row">
+                                <label class="batch-ops-checkbox-label">
+                                    <input type="checkbox" id="batch-regex"> Regex
+                                </label>
+                                <button class="btn btn-sm btn-primary" onclick="batchFindReplace()">Apply Replace</button>
+                            </div>
+                        </div>
+                        
+                        <div class="batch-ops-result" id="batch-ops-result"></div>
+                    </div>
+                    <div class="batch-ops-pro-lock" id="batch-ops-pro-lock" style="display:none;">
+                        <span>🔒 <strong>Batch Operations</strong> are a Pro feature.</span>
+                        <a href="#" onclick="showAuthModal('login'); return false;" class="btn btn-sm btn-primary" style="margin-top:8px;">Upgrade to Pro</a>
+                    </div>
                 </div>
             </div>
 
@@ -119,13 +201,13 @@
                                 <span>🎬 <strong>Only Pro users</strong> can edit video subtitles directly</span>
                                 <span>🔊 <strong>Auto-detect</strong> speech segments for perfect sync</span>
                             </div>
-                            <p style="margin-top:12px;font-size:0.85rem;color:#A16207;">
+                            <p class="lock-info-note">
                                 👋 Non-editor level? Use the <strong>Upload tab</strong> to work with .srt files.
                             </p>
                         </div>
                         <div class="lock-info-cta">
-                            <a href="#" onclick="showAuthModal('login'); return false;" class="btn btn-primary" style="margin-bottom:6px;width:100%;text-align:center;">🔑 Login</a>
-                            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-lock" style="margin-bottom:6px;">🔥 Get Pro Now — $50</a>
+                            <a href="#" onclick="showAuthModal('login'); return false;" class="btn btn-primary lock-info-cta-btn">🔑 Login</a>
+                            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-lock lock-info-cta-btn">🔥 Get Pro Now — $50</a>
                             <a href="#" onclick="showTab('pricing'); return false;" class="lock-info-compare">See what you're missing →</a>
                         </div>
                     </div>
@@ -206,7 +288,42 @@
 
             <div id="preview-tab" class="tab-content">
                 <h2>SRT Preview</h2>
-                <div id="srt-preview"></div>
+                <p class="preview-description">Click a subtitle block to preview how it looks on a video overlay</p>
+                
+                <!-- Preview Controls -->
+                <div class="preview-controls">
+                    <button class="btn btn-primary" onclick="previewSRT()">🔄 Refresh Preview</button>
+                    <button class="btn btn-small" onclick="startPreviewAutoPlay()">▶️ Auto-Play</button>
+                    <button class="btn btn-small" onclick="stopPreviewAutoPlay()">⏹️ Stop</button>
+                    <div class="preview-speed-control">
+                        <label for="preview-speed">Speed:</label>
+                        <select id="preview-speed" onchange="updatePreviewSpeed(this.value)">
+                            <option value="1">1×</option>
+                            <option value="1.5">1.5×</option>
+                            <option value="2">2×</option>
+                            <option value="0.5">0.5×</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="preview-container">
+                    <!-- Video Overlay Simulation -->
+                    <div class="preview-overlay" id="preview-overlay">
+                        <div class="preview-overlay-progress" id="preview-overlay-progress"></div>
+                        <div class="preview-overlay-text" id="preview-overlay-text">🎬 Load an SRT file and click a subtitle to preview</div>
+                        <div class="preview-overlay-timer" id="preview-overlay-timer">00:00:00,000</div>
+                    </div>
+                    
+                    <!-- Subtitle List -->
+                    <div class="preview-list" id="preview-list">
+                        <div class="preview-empty-state">
+                            No subtitles loaded. Upload an SRT file first.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Raw SRT Preview (hidden by default) -->
+                <div id="srt-preview" style="display:none;margin-top:20px;"></div>
             </div>
 
             <div id="pricing-tab" class="tab-content">
@@ -463,7 +580,7 @@
                     <label>Password</label>
                     <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password">
                 </div>
-                <button class="btn btn-primary" onclick="handleLogin()" style="width:100%;justify-content:center;">🔑 Login</button>
+                <button class="btn btn-primary auth-btn" onclick="handleLogin()">🔑 Login</button>
                 <div id="login-error" class="auth-error"></div>
                 <p class="auth-switch">Don't have an account? <a href="#" onclick="switchAuthTab('register')">Register here</a></p>
             </div>
@@ -482,7 +599,7 @@
                     <label>Confirm Password</label>
                     <input type="password" id="register-confirm" placeholder="Confirm password" autocomplete="new-password">
                 </div>
-                <button class="btn btn-success" onclick="handleRegister()" style="width:100%;justify-content:center;">✅ Create Account</button>
+                <button class="btn btn-success auth-btn" onclick="handleRegister()">✅ Create Account</button>
                 <div id="register-error" class="auth-error"></div>
                 <!-- Verification key display (shown after registration) -->
                 <div id="verification-key-section" class="verification-key-section" style="display:none;">
@@ -503,9 +620,9 @@
                 </div>
                 <div class="auth-field">
                     <label>Verification Key</label>
-                    <input type="text" id="verify-key" placeholder="SRTV-XXXX-XXXX-XXXX" style="font-family:'Courier New',monospace;letter-spacing:1px;text-transform:uppercase;">
+                    <input type="text" id="verify-key" class="mono-input" placeholder="SRTV-XXXX-XXXX-XXXX">
                 </div>
-                <button class="btn btn-success" onclick="handleVerifyWithKey()" style="width:100%;justify-content:center;">✅ Verify & Restore Pro</button>
+                <button class="btn btn-success auth-btn" onclick="handleVerifyWithKey()">✅ Verify & Restore Pro</button>
                 <div id="verify-error" class="auth-error"></div>
                 <p class="auth-switch">Need a key? <a href="#" onclick="switchAuthTab('register')">Register an account</a></p>
             </div>
@@ -530,9 +647,9 @@
                 </div>
                 <div class="auth-field">
                     <label>License Key</label>
-                    <input type="text" id="license-key" placeholder="SRTN-XXXX-XXXX-XXXX" style="font-family:'Courier New',monospace;letter-spacing:1px;text-transform:uppercase;">
+                    <input type="text" id="license-key" class="mono-input" placeholder="SRTN-XXXX-XXXX-XXXX">
                 </div>
-                <button class="btn btn-success" onclick="handleLicenseActivation()" style="width:100%;justify-content:center;">✅ Activate Pro</button>
+                <button class="btn btn-success auth-btn" onclick="handleLicenseActivation()">✅ Activate Pro</button>
                 <div id="license-error" class="auth-error"></div>
                 <p class="auth-switch" style="margin-top:16px;">
                     🔥 <strong>Just bought Pro?</strong>
@@ -560,6 +677,53 @@
     <!-- Toast Messages -->
     <div class="success-message" id="success-message"></div>
     <div class="error-message" id="error-message"></div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcuts-modal" class="shortcuts-modal-overlay" style="display:none;" onclick="if(event.target===this)hideShortcuts()">
+        <div class="shortcuts-modal-content">
+            <h3>⌨️ Keyboard Shortcuts</h3>
+            <p>Boost your workflow with these keyboard shortcuts</p>
+            <div class="shortcuts-grid">
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">Ctrl+S</span>
+                    <span class="shortcuts-desc">Export / Download SRT</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">?</span>
+                    <span class="shortcuts-desc">Toggle this help dialog</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">Esc</span>
+                    <span class="shortcuts-desc">Close dialog / modal</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">Ctrl+Z</span>
+                    <span class="shortcuts-desc">Undo (timeline editor)</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">Ctrl+Shift+Z</span>
+                    <span class="shortcuts-desc">Redo (timeline editor)</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">Space</span>
+                    <span class="shortcuts-desc">Play / Pause (timeline editor)</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">D</span>
+                    <span class="shortcuts-desc">Toggle dark mode</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">P</span>
+                    <span class="shortcuts-desc">Open preview tab</span>
+                </div>
+                <div class="shortcuts-row">
+                    <span class="shortcuts-key">U</span>
+                    <span class="shortcuts-desc">Open upload tab</span>
+                </div>
+            </div>
+            <button class="shortcuts-close-btn" onclick="hideShortcuts()">Got it</button>
+        </div>
+    </div>
 
     <!-- Sticky CTA Bar -->
     <div id="sticky-cta-bar" class="sticky-cta-bar">
@@ -716,21 +880,13 @@
 
         // Download SRT file
         function downloadSRT() {
-            if (!currentSRT) {
-                showError('No SRT file to download');
+            const content = getEditorContent() || currentSRT;
+            if (!content) {
+                showError('No SRT content to download');
                 return;
             }
 
-            const blob = new Blob([currentSRT], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = selectedFile ? selectedFile.name : 'subtitle.srt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
+            downloadBlob(content, selectedFile ? selectedFile.name.replace('.srt', '') + '.srt' : 'subtitles.srt', 'text/plain');
             showSuccess('SRT file downloaded successfully!');
         }
 
@@ -791,6 +947,7 @@
                 showTab('editor');
                 
                 showSuccess('Pro license activated! You now have access to the timeline editor, vocal detection, and video export.');
+                updateProFeatureVisibility();
                 enablePROFeatures();
                 
                 const stickyCta = document.getElementById('sticky-cta-bar');
@@ -932,14 +1089,498 @@
 
         // Parse SRT content
         function parseSRT(content) {
-            const blocks = content.split('\\n\\n').filter(block => block.trim());
+            const blocks = content.split('\n\n').filter(block => block.trim());
             return blocks.map(block => {
-                const lines = block.split('\\n');
+                const lines = block.split('\n');
                 const sequence = lines[0];
                 const timing = lines[1];
-                const text = lines.slice(2).join('\\n');
+                const text = lines.slice(2).join('\n');
                 return { sequence, timing, text };
             });
+        }
+
+        // =============================================
+        // MULTI-FORMAT EXPORT
+        // =============================================
+
+        // Format time from SRT to ASS format
+        function srtTimeToAss(time) {
+            return time.replace(',', '.');
+        }
+
+        // Format time from SRT to VTT format
+        function srtTimeToVtt(time) {
+            return time.replace(',', '.');
+        }
+
+        // Export as ASS (Advanced SubStation Alpha)
+        function downloadASS() {
+            const content = getEditorContent();
+            if (!content) { showError('No content to export'); return; }
+            
+            let assContent = '[Script Info]\n';
+            assContent += 'ScriptType: v4.00+\n';
+            assContent += 'PlayResX: 1920\n';
+            assContent += 'PlayResY: 1080\n';
+            assContent += 'Title: Exported from SRT Snap\n';
+            assContent += '\n[V4+ Styles]\n';
+            assContent += 'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n';
+            assContent += 'Style: Default,Arial,48,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,2,2,10,10,10,1\n';
+            assContent += '\n[Events]\n';
+            assContent += 'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n';
+            
+            const blocks = parseSRT(content);
+            blocks.forEach(block => {
+                if (!block.timing) return;
+                const [start, end] = block.timing.split(' --> ');
+                const text = block.text.replace(/\n/g, '\\N');
+                assContent += `Dialogue: 0,${srtTimeToAss(start)},${srtTimeToAss(end)},Default,,0,0,0,,${text}\n`;
+            });
+            
+            downloadBlob(assContent, 'subtitles.ass', 'text/plain');
+            showSuccess('ASS file exported successfully!');
+        }
+
+        // Export as VTT (WebVTT)
+        function downloadVTT() {
+            const content = getEditorContent();
+            if (!content) { showError('No content to export'); return; }
+            
+            let vttContent = 'WEBVTT\n\n';
+            
+            const blocks = parseSRT(content);
+            blocks.forEach(block => {
+                if (!block.timing) return;
+                const [start, end] = block.timing.split(' --> ');
+                vttContent += `${srtTimeToVtt(start)} --> ${srtTimeToVtt(end)}\n`;
+                vttContent += `${block.text}\n\n`;
+            });
+            
+            downloadBlob(vttContent, 'subtitles.vtt', 'text/vtt');
+            showSuccess('VTT file exported successfully!');
+        }
+
+        // Export as plain text
+        function downloadTXT() {
+            const content = getEditorContent();
+            if (!content) { showError('No content to export'); return; }
+            
+            let txtContent = '';
+            const blocks = parseSRT(content);
+            blocks.forEach(block => {
+                if (block.text) {
+                    txtContent += block.text.replace(/\n/g, ' ') + '\n';
+                }
+            });
+            
+            downloadBlob(txtContent.trim(), 'subtitles.txt', 'text/plain');
+            showSuccess('TXT file exported successfully!');
+        }
+
+        // Helper: download blob
+        function downloadBlob(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // =============================================
+        // ENHANCED PREVIEW
+        // =============================================
+
+        let previewAutoPlayTimer = null;
+        let previewCurrentIndex = 0;
+        let previewParsedBlocks = [];
+
+        // Update preview with current SRT content
+        function updatePreview() {
+            const content = getEditorContent();
+            if (!content) {
+                document.getElementById('preview-overlay-text').textContent = '🎬 Load an SRT file to preview subtitles';
+                document.getElementById('preview-list').innerHTML = '<div style="color:var(--c-gray);font-size:0.85rem;text-align:center;padding:30px 0;">No subtitles loaded.</div>';
+                document.getElementById('preview-overlay-timer').textContent = '00:00:00,000';
+                return;
+            }
+
+            previewParsedBlocks = parseSRT(content);
+            
+            // Build subtitle list
+            let listHtml = '';
+            previewParsedBlocks.forEach((block, idx) => {
+                if (!block.timing) return;
+                const textPreview = block.text ? block.text.substring(0, 80) + (block.text.length > 80 ? '...' : '') : '';
+                listHtml += `
+                    <div class="preview-list-item" onclick="showSubtitleAt(${idx})" data-index="${idx}">
+                        <div class="preview-list-seq">#${block.sequence || (idx + 1)}</div>
+                        <div class="preview-list-time">${block.timing || ''}</div>
+                        <div class="preview-list-text">${textPreview || '—'}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('preview-list').innerHTML = listHtml || '<div style="color:var(--c-gray);font-size:0.85rem;text-align:center;padding:30px 0;">No valid subtitle blocks found.</div>';
+            
+            // Show first subtitle if available
+            if (previewParsedBlocks.length > 0 && previewParsedBlocks[0].timing) {
+                showSubtitleAt(0);
+            }
+        }
+
+        // Show a specific subtitle in the overlay
+        function showSubtitleAt(index) {
+            if (!previewParsedBlocks[index] || !previewParsedBlocks[index].timing) return;
+            
+            const block = previewParsedBlocks[index];
+            previewCurrentIndex = index;
+            
+            // Update overlay text
+            const overlayText = document.getElementById('preview-overlay-text');
+            overlayText.textContent = block.text || '';
+            
+            // Update timer
+            document.getElementById('preview-overlay-timer').textContent = block.timing;
+            
+            // Update progress bar (approximate)
+            if (previewParsedBlocks.length > 1) {
+                const progress = ((index + 1) / previewParsedBlocks.length) * 100;
+                document.getElementById('preview-overlay-progress').style.width = progress + '%';
+            }
+            
+            // Highlight active item in list
+            document.querySelectorAll('.preview-list-item').forEach(el => el.classList.remove('active'));
+            const activeItem = document.querySelector(`.preview-list-item[data-index="${index}"]`);
+            if (activeItem) activeItem.classList.add('active');
+            
+            // Scroll into view
+            if (activeItem) activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        // Auto-play subtitles
+        function startPreviewAutoPlay() {
+            stopPreviewAutoPlay();
+            if (previewParsedBlocks.length === 0) {
+                showError('No subtitles to preview');
+                return;
+            }
+            
+            previewCurrentIndex = 0;
+            showSubtitleAt(0);
+            
+            function playNext() {
+                if (previewCurrentIndex >= previewParsedBlocks.length - 1) {
+                    stopPreviewAutoPlay();
+                    return;
+                }
+                previewCurrentIndex++;
+                showSubtitleAt(previewCurrentIndex);
+                
+                // Calculate delay based on time difference
+                const currentBlock = previewParsedBlocks[previewCurrentIndex];
+                const prevBlock = previewParsedBlocks[previewCurrentIndex - 1];
+                let delay = 2000; // default 2s
+                
+                if (currentBlock && currentBlock.timing && prevBlock && prevBlock.timing) {
+                    const getSeconds = (t) => {
+                        const parts = t.split(':');
+                        const secParts = parts[2].split(',');
+                        return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(secParts[0]) + parseInt(secParts[1] || '0') / 1000;
+                    };
+                    const [, prevEnd] = prevBlock.timing.split(' --> ');
+                    const [curStart] = currentBlock.timing.split(' --> ');
+                    if (prevEnd && curStart) {
+                        delay = Math.max(500, (getSeconds(curStart) - getSeconds(prevEnd)) * 1000);
+                    }
+                }
+                
+                const speed = parseFloat(document.getElementById('preview-speed').value || '1');
+                previewAutoPlayTimer = setTimeout(playNext, delay / speed);
+            }
+            
+            const firstBlock = previewParsedBlocks[0];
+            if (firstBlock && firstBlock.timing) {
+                const [, firstEnd] = firstBlock.timing.split(' --> ');
+                let firstDelay = 2000;
+                if (firstEnd) {
+                    const parts = firstEnd.split(':');
+                    const secParts = parts[2].split(',');
+                    const secs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseFloat(secParts[0]) + parseInt(secParts[1] || '0') / 1000;
+                    firstDelay = Math.max(500, secs * 1000);
+                }
+                const speed = parseFloat(document.getElementById('preview-speed').value || '1');
+                previewAutoPlayTimer = setTimeout(playNext, firstDelay / speed);
+            }
+        }
+
+        function stopPreviewAutoPlay() {
+            if (previewAutoPlayTimer) {
+                clearTimeout(previewAutoPlayTimer);
+                previewAutoPlayTimer = null;
+            }
+        }
+
+        function updatePreviewSpeed(value) {
+            // If auto-play is running, restart with new speed
+            if (previewAutoPlayTimer) {
+                startPreviewAutoPlay();
+            }
+        }
+
+        // Override the original previewSRT to use enhanced preview
+        const originalPreviewSRT = window.previewSRT || function(){};
+        window.previewSRT = function() {
+            const content = getEditorContent();
+            if (!content) {
+                showError('No content to preview');
+                return;
+            }
+            
+            // Show the preview tab
+            showTab('preview');
+            
+            // Update enhanced preview
+            setTimeout(updatePreview, 100);
+        };
+
+        // =============================================
+        // DARK MODE
+        // =============================================
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const toggle = document.getElementById('dark-mode-toggle');
+            const isDark = body.classList.toggle('dark-mode');
+            
+            // Also respect prefers-color-scheme by overriding with class
+            if (isDark) {
+                toggle.textContent = '☀️';
+                toggle.title = 'Switch to Light Mode';
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                toggle.textContent = '🌙';
+                toggle.title = 'Switch to Dark Mode';
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+
+        function initDarkMode() {
+            const saved = localStorage.getItem('darkMode');
+            if (saved === 'true') {
+                document.body.classList.add('dark-mode');
+                const toggle = document.getElementById('dark-mode-toggle');
+                if (toggle) {
+                    toggle.textContent = '☀️';
+                    toggle.title = 'Switch to Light Mode';
+                }
+            }
+        }
+
+        // =============================================
+        // BATCH OPERATIONS
+        // =============================================
+
+        let batchOpsVisible = false;
+
+        function toggleBatchOps() {
+            if (!isProUser) {
+                showAuthModal('login');
+                return;
+            }
+            const panel = document.getElementById('batch-ops-panel');
+            const proLock = document.getElementById('batch-ops-pro-lock');
+            batchOpsVisible = !batchOpsVisible;
+            if (batchOpsVisible) {
+                panel.classList.add('show');
+                proLock.classList.remove('visible');
+            } else {
+                panel.classList.remove('show');
+            }
+        }
+
+        function updateProFeatureVisibility() {
+            const exportFormats = document.getElementById('pro-export-formats');
+            const exportLock = document.getElementById('pro-export-lock');
+            const batchPanel = document.getElementById('batch-ops-panel');
+            const batchLock = document.getElementById('batch-ops-pro-lock');
+            
+            if (isProUser) {
+                if (exportFormats) { exportFormats.style.display = 'flex'; exportFormats.classList.add('visible'); }
+                if (exportLock) exportLock.style.display = 'none';
+                // Batch ops panel remains controlled by toggle button
+                if (batchLock) batchLock.style.display = 'none';
+            } else {
+                if (exportFormats) { exportFormats.style.display = 'none'; exportFormats.classList.remove('visible'); }
+                if (exportLock) exportLock.style.display = 'inline-flex';
+                // Hide batch panel, show lock
+                if (batchPanel) { batchPanel.classList.remove('show'); }
+                if (batchLock) batchLock.style.display = 'block';
+            }
+        }
+
+        function switchBatchOp(paneId, btn) {
+            // Update tabs
+            document.querySelectorAll('.batch-ops-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update panes
+            document.querySelectorAll('.batch-ops-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('pane-' + paneId).classList.add('active');
+        }
+
+        function showBatchResult(msg, isError) {
+            const el = document.getElementById('batch-ops-result');
+            el.textContent = msg;
+            el.className = 'batch-ops-result show' + (isError ? ' error' : '');
+        }
+
+        function batchTimeShift() {
+            const content = getEditorContent();
+            if (!content) { showBatchResult('No content to process', true); return; }
+            
+            const offset = parseFloat(document.getElementById('batch-offset').value);
+            if (isNaN(offset) || offset === 0) { showBatchResult('Please enter a valid offset (non-zero)', true); return; }
+            
+            const lines = content.split('\n');
+            let modified = 0;
+            
+            const newLines = lines.map(line => {
+                const match = line.match(/^(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})$/);
+                if (!match) return line;
+                
+                const shiftTime = (timeStr, offsetSec) => {
+                    const parts = timeStr.split(':');
+                    const secParts = parts[2].split(',');
+                    let totalMs = parseInt(parts[0]) * 3600000 + parseInt(parts[1]) * 60000 + parseInt(secParts[0]) * 1000 + parseInt(secParts[1]);
+                    totalMs += offsetSec * 1000;
+                    if (totalMs < 0) totalMs = 0;
+                    
+                    const h = Math.floor(totalMs / 3600000);
+                    const m = Math.floor((totalMs % 3600000) / 60000);
+                    const s = Math.floor((totalMs % 60000) / 1000);
+                    const ms = totalMs % 1000;
+                    
+                    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;
+                };
+                
+                modified++;
+                return `${shiftTime(match[1], offset)} --> ${shiftTime(match[2], offset)}`;
+            });
+            
+            const newContent = newLines.join('\n');
+            const editor = document.getElementById('srt-editor');
+            if (editor) editor.value = newContent;
+            currentSRT = newContent;
+            
+            showBatchResult(`✅ Time shifted by ${offset > 0 ? '+' : ''}${offset}s — ${modified} timestamps modified`);
+        }
+
+        function batchRenumber() {
+            const content = getEditorContent();
+            if (!content) { showBatchResult('No content to process', true); return; }
+            
+            const startNum = parseInt(document.getElementById('batch-start-num').value) || 1;
+            const step = parseInt(document.getElementById('batch-step-num').value) || 1;
+            
+            const lines = content.split('\n');
+            let seqNum = startNum;
+            let modified = 0;
+            
+            const newLines = lines.map(line => {
+                if (line.trim().match(/^\d+$/)) {
+                    // Check if next line is a timing line
+                    const idx = lines.indexOf(line);
+                    if (idx + 1 < lines.length && lines[idx + 1].match(/^\d{2}:\d{2}:\d{2},\d{3} -->/)) {
+                        modified++;
+                        return seqNum.toString();
+                    }
+                }
+                return line;
+            });
+            
+            const newContent = newLines.join('\n');
+            // Actually do it properly - find sequence numbers followed by timing
+            const blocks = content.split('\n\n');
+            const newBlocks = blocks.map(block => {
+                const trimmed = block.trim();
+                if (!trimmed) return block;
+                const lines = trimmed.split('\n');
+                if (lines.length >= 2 && lines[0].trim().match(/^\d+$/) && lines[1].match(/^\d{2}:\d{2}:\d{2},\d{3} -->/)) {
+                    lines[0] = seqNum.toString();
+                    seqNum += step;
+                    modified++;
+                    return lines.join('\n');
+                }
+                return block;
+            });
+            
+            const newContent2 = newBlocks.join('\n\n');
+            const editor = document.getElementById('srt-editor');
+            if (editor) editor.value = newContent2;
+            currentSRT = newContent2;
+            
+            showBatchResult(`✅ Renumbered ${modified} subtitles (starting at ${startNum}, step ${step})`);
+        }
+
+        function batchFindReplace() {
+            const content = getEditorContent();
+            if (!content) { showBatchResult('No content to process', true); return; }
+            
+            const findText = document.getElementById('batch-find').value;
+            const replaceText = document.getElementById('batch-replace').value;
+            const useRegex = document.getElementById('batch-regex').checked;
+            
+            if (!findText) { showBatchResult('Please enter text to find', true); return; }
+            
+            let newContent;
+            let count = 0;
+            
+            if (useRegex) {
+                try {
+                    const regex = new RegExp(findText, 'g');
+                    newContent = content.replace(regex, (match) => {
+                        count++;
+                        return replaceText;
+                    });
+                } catch (e) {
+                    showBatchResult('❌ Invalid regex: ' + e.message, true);
+                    return;
+                }
+            } else {
+                // Count occurrences (in text portions only)
+                const lines = content.split('\n');
+                newContent = lines.map(line => {
+                    // Only replace in text lines (not sequence numbers or timing)
+                    if (line.match(/^\d+$/) || line.match(/^\d{2}:\d{2}:\d{2},\d{3} -->/)) return line;
+                    const escapedFind = findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(escapedFind, 'g');
+                    const matched = line.match(regex);
+                    if (matched) count += matched.length;
+                    return line.replace(regex, replaceText);
+                }).join('\n');
+            }
+            
+            const editor = document.getElementById('srt-editor');
+            if (editor) editor.value = newContent;
+            currentSRT = newContent;
+            
+            showBatchResult(`✅ Replaced ${count} occurrence(s) of "${findText}" with "${replaceText}"`);
+        }
+
+        // =============================================
+        // KEYBOARD SHORTCUTS HELP
+        // =============================================
+
+        function showShortcuts() {
+            document.getElementById('shortcuts-modal').style.display = 'flex';
+        }
+
+        function hideShortcuts() {
+            document.getElementById('shortcuts-modal').style.display = 'none';
         }
 
         // Auto-save functionality (only if srt-editor exists)
@@ -969,6 +1610,9 @@
             if (currentUser) {
                 updateUserBar();
             }
+            
+            // Show/hide pro-gated features
+            updateProFeatureVisibility();
 
             // Init upload tab SRT editor auto-save
             if (document.getElementById('srt-editor')) {
@@ -990,11 +1634,50 @@
             // Animate social proof counters on load
             animateCounters();
 
+            // Init dark mode
+            initDarkMode();
+
             // Add keyboard shortcuts
             document.addEventListener('keydown', function(e) {
+                // Ctrl+S: Export SRT
                 if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     downloadSRT();
+                    return;
+                }
+                // ? key: Toggle shortcuts help
+                if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+                    const modal = document.getElementById('shortcuts-modal');
+                    if (modal.style.display === 'flex') {
+                        hideShortcuts();
+                    } else {
+                        showShortcuts();
+                    }
+                    e.preventDefault();
+                    return;
+                }
+                // Esc: Close modals
+                if (e.key === 'Escape') {
+                    hideShortcuts();
+                    return;
+                }
+                // D key: Toggle dark mode (not in input fields)
+                if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.metaKey && !e.target.closest('input,textarea,select')) {
+                    toggleDarkMode();
+                    e.preventDefault();
+                    return;
+                }
+                // P key: Go to preview tab
+                if ((e.key === 'p' || e.key === 'P') && !e.ctrlKey && !e.metaKey && !e.target.closest('input,textarea,select')) {
+                    showTab('preview');
+                    e.preventDefault();
+                    return;
+                }
+                // U key: Go to upload tab
+                if ((e.key === 'u' || e.key === 'U') && !e.ctrlKey && !e.metaKey && !e.target.closest('input,textarea,select')) {
+                    showTab('upload');
+                    e.preventDefault();
+                    return;
                 }
             });
         });
@@ -1049,6 +1732,7 @@
 
                 closeAuthModal();
                 updateUserBar();
+                updateProFeatureVisibility();
 
                 // Show verification key if available
                 if (result.verificationKey) {
@@ -1082,6 +1766,7 @@
             if (result.success) {
                 currentUser = { email: result.email };
                 updateUserBar();
+                updateProFeatureVisibility();
                 showSuccess('Account created! You are now logged in.');
                 
                 // Show verification key
@@ -1113,6 +1798,12 @@
             isProUser = false;
             currentUser = null;
             document.getElementById('user-bar').style.display = 'none';
+            updateProFeatureVisibility();
+            // Disable Pro features
+            const lockOverlay = document.getElementById('editor-lock-overlay');
+            const editorMain = document.getElementById('editor-main');
+            if (lockOverlay) lockOverlay.style.display = 'block';
+            if (editorMain) editorMain.style.display = 'none';
             showTab('upload');
             showSuccess('Logged out successfully.');
         }
@@ -1142,6 +1833,7 @@
                 currentUser = { email: result.email };
                 closeLicenseModal();
                 updateUserBar();
+                updateProFeatureVisibility();
                 enablePROFeatures();
                 showTab('editor');
                 showSuccess('✅ Pro license activated! Welcome to the timeline editor.');
@@ -1162,6 +1854,7 @@
                 currentUser = { email: result.email };
                 closeAuthModal();
                 updateUserBar();
+                updateProFeatureVisibility();
                 enablePROFeatures();
                 showTab('editor');
                 showSuccess(result.message);
@@ -1175,6 +1868,7 @@
             const newPro = AuthSystem.adminTogglePro();
             isProUser = AuthSystem.isPro();
             updateUserBar();
+            updateProFeatureVisibility();
             if (isProUser) {
                 enablePROFeatures();
                 showSuccess('👑 Admin: Pro mode ENABLED');
