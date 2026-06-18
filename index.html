@@ -40,12 +40,15 @@
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
+        "@type": "WebApplication",
         "name": "SRT Snap",
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
-        "browserRequirements": "JavaScript enabled",
-        "description": "Professional SRT subtitle editor with timeline editing, video sync, vocal detection, and batch operations. 100% client-side browser app.",
+        "browserRequirements": "Requires JavaScript. Supports Chrome, Firefox, Safari, Edge.",
+        "description": "Professional SRT subtitle editor with timeline editing, video sync, vocal detection, and batch operations. 100% client-side, no uploads, your files stay private.",
+        "url": "https://cursed666-hash.github.io/srt-snap/",
+        "sameAs": "https://github.com/Cursed666-hash/srt-snap",
+        "screenshot": "https://cursed666-hash.github.io/srt-snap/og-image.png",
         "offers": [
             {
                 "@type": "Offer",
@@ -75,15 +78,160 @@
         }
     }
     </script>
+
+    <!-- BreadcrumbList Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://cursed666-hash.github.io/srt-snap/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "SRT Editor",
+                "item": "https://cursed666-hash.github.io/srt-snap/#editor"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Pricing",
+                "item": "https://cursed666-hash.github.io/srt-snap/#pricing"
+            }
+        ]
+    }
+    </script>
+
+    <!-- FAQ Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is an SRT file?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "SRT (SubRip Subtitle) is a plain-text file format that stores subtitles with timing information. Each subtitle entry includes a sequence number, start and end timestamps, and the text caption. SRT is the most widely supported subtitle format across video players, streaming platforms, and editing software."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is SRT Snap free to use?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes! SRT Snap has a generous free tier that includes basic SRT editing, preview mode, and SRT export. The Pro plan at $50 lifetime unlocks the PowerDirector-style timeline editor with video sync, vocal detection, drag-and-drop subtitle blocks, batch operations, and multi-format export to ASS, VTT, and TXT."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Are my subtitle files uploaded to a server?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Absolutely not. SRT Snap runs 100% in your browser. Your files never leave your computer. All processing happens client-side using JavaScript. There are no servers, no uploads, and no data storage. Your privacy is guaranteed."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I edit SRT subtitles with video?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "With the Pro timeline editor, you can upload a video file alongside your SRT subtitles. The editor shows a synchronized video player with a multitrack timeline including video thumbnails, audio waveform, and subtitle blocks. You can drag subtitles to adjust timing, resize their duration, split or merge blocks, and see real-time preview of subtitles over the video."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I auto-sync subtitles to speech?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes! The Pro timeline editor includes vocal detection technology that analyzes your audio track to identify speech segments. It detects voice frequencies and creates subtitle blocks automatically aligned with the spoken content, which you can then fine-tune using the drag-and-drop interface."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What subtitle formats do you support?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "SRT Snap supports importing and exporting SRT (SubRip) format. Pro users can export to ASS (Advanced SubStation Alpha), VTT (WebVTT), and plain TXT formats. The timeline editor also supports extracting embedded subtitles from MP4 and MKV video files."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I get a Pro license?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Purchase a Pro license via PayPal for a one-time payment of $50. You will receive a license key (SRTN-XXXX-XXXX-XXXX) by email. Enter this key in the License section of the app to activate lifetime Pro access. You can also register an account to manage your license across devices."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- HowTo Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to Edit SRT Subtitle Files Online",
+        "description": "Learn how to edit SRT subtitle files using SRT Snap's free online editor or Pro timeline editor with video sync.",
+        "step": [
+            {
+                "@type": "HowToStep",
+                "position": 1,
+                "name": "Upload your SRT file",
+                "text": "Click the Upload tab and drag your .srt file onto the upload area, or click to browse and select it. Files up to 50MB are supported."
+            },
+            {
+                "@type": "HowToStep",
+                "position": 2,
+                "name": "Edit your subtitles",
+                "text": "Use the text editor to modify subtitle text, timestamps can be adjusted manually, or upgrade to Pro for the visual timeline editor."
+            },
+            {
+                "@type": "HowToStep",
+                "position": 3,
+                "name": "Preview your changes",
+                "text": "Click the Preview tab to see how your subtitles look. The preview simulates a video overlay with auto-play functionality."
+            },
+            {
+                "@type": "HowToStep",
+                "position": 4,
+                "name": "Export your subtitle file",
+                "text": "Click Export .srt to download your edited subtitles. Pro users can also export to ASS, VTT, and TXT formats."
+            }
+        ]
+    }
+    </script>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" as="style" href="src/styles.css">
+    <link rel="preload" as="script" href="src/editor.js">
+    <link rel="preload" as="script" href="src/auth.js">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SRT Snap">
+
+    <!-- Favicon (inline SVG) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FF6B35'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Arial,sans-serif' font-weight='bold' font-size='14' fill='white'%3ESRT%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='24' fill='%23FF6B35'/%3E%3Ctext x='96' y='130' text-anchor='middle' font-family='Arial,sans-serif' font-weight='bold' font-size='72' fill='white'%3ESRT%3C/text%3E%3C/svg%3E">
     <script>window.ADMIN_CONFIG = {
     username: 'admin',
     password: 'Teal-Lion-Tamer-Cup-184372',
     email: 'matthewbaker1993.mb@gmail.com',
     isPro: true
 };</script>
-    <script src="src/secret-config.js"></script>
-    <script src="src/auth.js"></script>
-    <script src="src/editor.js"></script>
+    <script src="src/secret-config.js" defer></script>
+    <script src="src/auth.js" defer></script>
+    <script src="src/editor.js" defer></script>
 </head>
 <body>
     <!-- Skip to main content (accessibility) -->
@@ -135,12 +283,12 @@
         </div>
 
         <main class="content" id="main-content" role="main">
-            <section id="upload-tab" class="tab-content active" aria-label="Upload SRT file">
-                <h2>Upload SRT File</h2>
+            <section id="upload-tab" class="tab-content active" aria-label="Upload SRT Subtitle File Editor">
+                <h2>Upload SRT Subtitle File — Free Online Editor</h2>
                 <div class="upload-section" id="upload-area">
                     <span class="upload-icon">📤</span>
-                    <h3>Drop SRT file here or click to browse</h3>
-                    <p>Supports .srt files up to 50MB</p>
+                    <h3>Drop SRT subtitle file here or click to browse</h3>
+                    <p>Edit SRT, ASS, VTT, and TXT subtitles. Supports .srt files up to 50MB — 100% free, no registration needed.</p>
                     <input type="file" accept=".srt" class="upload-input" id="file-input">
                     <label for="file-input" class="upload-label">Choose SRT File</label>
                 </div>
@@ -236,6 +384,45 @@
                     <div class="batch-ops-pro-lock" id="batch-ops-pro-lock" style="display:none;">
                         <span>🔒 <strong>Batch Operations</strong> are a Pro feature.</span>
                         <a href="#" onclick="showAuthModal('login'); return false;" class="btn btn-sm btn-primary" style="margin-top:8px;">Upgrade to Pro</a>
+                    </div>
+                <!-- How to Use SRT Snap Guide (SEO content) -->
+                <div class="seo-guide-section">
+                    <h2>How to Edit SRT Subtitle Files Online</h2>
+                    <p>SRT Snap makes subtitle editing simple and fast. Follow this guide to edit your SRT files, sync subtitles with video, and export in multiple formats.</p>
+                    
+                    <div class="seo-guide-steps">
+                        <div class="seo-guide-step">
+                            <div class="seo-guide-step-num">1</div>
+                            <div class="seo-guide-step-content">
+                                <h3>Upload Your SRT File</h3>
+                                <p>Click the <strong>Upload</strong> tab and drag your <code>.srt</code> file onto the upload area, or click to browse and select it from your computer. SRT Snap supports files up to 50MB. Your file stays on your device — nothing is uploaded to any server.</p>
+                            </div>
+                        </div>
+                        <div class="seo-guide-step">
+                            <div class="seo-guide-step-num">2</div>
+                            <div class="seo-guide-step-content">
+                                <h3>Edit Subtitle Text and Timing</h3>
+                                <p>Use the built-in text editor to modify subtitle text directly. Each subtitle entry shows its sequence number, timing (start and end), and caption text. You can add new subtitles, delete entries, or adjust timestamps. For a visual editing experience, <a href="#" onclick="showTab('pricing'); return false;">upgrade to Pro</a> to unlock the timeline editor with drag-and-drop controls.</p>
+                            </div>
+                        </div>
+                        <div class="seo-guide-step">
+                            <div class="seo-guide-step-num">3</div>
+                            <div class="seo-guide-step-content">
+                                <h3>Preview Your Subtitles</h3>
+                                <p>Click the <strong>Preview</strong> tab to see how your subtitles will look on screen. The preview simulates a video overlay with adjustable playback speed. Click individual subtitle blocks to jump to specific timestamps and verify readability, timing, and formatting.</p>
+                            </div>
+                        </div>
+                        <div class="seo-guide-step">
+                            <div class="seo-guide-step-num">4</div>
+                            <div class="seo-guide-step-content">
+                                <h3>Export Your Subtitle File</h3>
+                                <p>Once your subtitles are ready, click <strong>Export .srt</strong> to download the edited file. Pro users can also export to <strong>ASS</strong> (Advanced SubStation Alpha) for advanced styling, <strong>VTT</strong> (WebVTT) for HTML5 video, and <strong>TXT</strong> for plain text transcripts.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="seo-guide-tip">
+                        <strong>💡 Pro Tip:</strong> For the most efficient workflow, use the Pro timeline editor to sync subtitles directly with video. The vocal detection feature can automatically create subtitle blocks from speech, saving hours of manual timing work.
                     </div>
                 </div>
             </section>
@@ -619,9 +806,52 @@
                         <span>✅ No subscriptions</span>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
-    </div>
+
+        <!-- =============================================
+             FAQ SECTION
+             ============================================= -->
+        <div class="seo-faq-section">
+            <h2>Frequently Asked Questions About SRT Subtitle Editing</h2>
+            
+            <div class="seo-faq-item">
+                <h3>What is an SRT file and how do I edit it?</h3>
+                <p>An SRT (SubRip Subtitle) file is a plain-text format that stores video subtitles with timing information. Each entry contains a sequence number, start and end timestamps in <code>HH:MM:SS,mmm --> HH:MM:SS,mmm</code> format, and the caption text. You can edit SRT files with any text editor, but SRT Snap makes it easy with a dedicated editor, preview mode, and a Pro timeline editor with video sync and drag-and-drop controls.</p>
+            </div>
+            
+            <div class="seo-faq-item">
+                <h3>Can I use SRT Snap for free?</h3>
+                <p>Yes! The free tier includes the basic SRT text editor, preview mode, and SRT export. For professional subtitle editing with video integration, the <a href="#" onclick="showTab('pricing'); return false;">Pro plan at $50 lifetime</a> unlocks the PowerDirector-style timeline editor, vocal detection for automatic speech syncing, drag-and-drop subtitle blocks, batch operations, and multi-format export to ASS, VTT, and TXT.</p>
+            </div>
+            
+            <div class="seo-faq-item">
+                <h3>How does the vocal detection and auto-sync feature work?</h3>
+                <p>SRT Snap Pro uses audio frequency analysis to detect speech segments in your video's audio track. The editor analyzes zero-crossing rates and energy levels to identify vocal sections, then creates subtitle blocks automatically aligned with the spoken content. You can then fine-tune the timing using the drag-and-drop timeline interface. This feature is ideal for content creators who need to quickly sync subtitles to dialogue.</p>
+            </div>
+            
+            <div class="seo-faq-item">
+                <h3>Is my data safe? Do you store my files?</h3>
+                <p>Your privacy is our priority. SRT Snap runs entirely in your web browser using JavaScript — there are no servers, no uploads, and no data storage. Your SRT files and video content never leave your computer. This 100% client-side architecture means you can edit sensitive subtitle content with complete peace of mind.</p>
+            </div>
+            
+            <div class="seo-faq-item">
+                <h3>What video and subtitle formats are supported?</h3>
+                <p>The free tier supports importing and exporting SRT (SubRip) format. Pro users can export to ASS (Advanced SubStation Alpha), VTT (WebVTT), and plain TXT formats. The Pro timeline editor supports MP4, WebM, AVI, and MOV video files, and can also attempt to extract embedded subtitle tracks from MP4 and MKV containers.</p>
+            </div>
+            
+            <div class="seo-faq-item">
+                <h3>How do I upgrade to Pro and activate my license?</h3>
+                <p>Purchase a Pro license via PayPal for a one-time payment of $50. You'll receive a license key (format: SRTN-XXXX-XXXX-XXXX) by email. Enter this key in the License section of the app to activate lifetime access. You can also register an account to manage your license across multiple devices. If you lose your key, contact support with your PayPal transaction ID for recovery.</p>
+            </div>
+            
+            <div class="seo-faq-item">
+                <h3>Can I edit subtitles while watching the video?</h3>
+                <p>Yes! The Pro timeline editor features a synchronized video player with real-time subtitle preview. As you play the video, the current subtitle is highlighted in the timeline and displayed as an overlay on the video. You can drag subtitle blocks to adjust timing, resize their duration, click to seek to any position, and see changes reflected immediately — similar to professional editing software like PowerDirector or Aegisub.</p>
+            </div>
+        </div>
+    </section>
 
     <!-- =============================================
          AUTH MODAL
