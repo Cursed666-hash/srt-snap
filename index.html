@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SRT Snap — Professional SRT Subtitle Editor | Free & Pro Online Tool</title>
     <meta name="description" content="Edit, create, and synchronize SRT subtitle files 100% in your browser. Free basic editor with powerful Pro timeline editor featuring video sync, vocal detection, drag-and-drop blocks, batch operations, and multi-format export. No uploads, no servers, your files stay private.">
-    <meta name="keywords" content="SRT editor, subtitle editor, SRT file editor, online subtitle tool, video subtitles, SRT creator, subtitle maker, free SRT editor, timeline subtitle editor, PowerDirector subtitle, vocal sync subtitles, batch SRT editing, ASS export, VTT export, subtitle timing tool">
+    <meta name="keywords" content="SRT editor, subtitle editor, SRT file editor, online subtitle tool, video subtitles, SRT creator, subtitle maker, free SRT editor, timeline subtitle editor, subtitle sync tool, vocal sync subtitles, batch SRT editing, ASS export, VTT export, subtitle timing tool">
     <meta name="robots" content="index, follow">
     <meta name="author" content="SRT Snap">
     <meta name="theme-color" content="#0F172A">
@@ -28,7 +28,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://www.paypal.com">
+    <!-- PayPal dns-prefetch loaded dynamically when pricing tab is shown -->
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
@@ -66,12 +66,6 @@
                 "description": "Timeline editor, video sync, vocal detection, batch ops, multi-format export, priority support"
             }
         ],
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.8",
-            "ratingCount": "127",
-            "bestRating": "5"
-        },
         "author": {
             "@type": "Organization",
             "name": "SRT Snap"
@@ -126,7 +120,7 @@
                 "name": "Is SRT Snap free to use?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes! SRT Snap has a generous free tier that includes basic SRT editing, preview mode, and SRT export. The Pro plan at $50 lifetime unlocks the PowerDirector-style timeline editor with video sync, vocal detection, drag-and-drop subtitle blocks, batch operations, and multi-format export to ASS, VTT, and TXT."
+                    "text": "Yes! SRT Snap has a generous free tier that includes basic SRT editing, preview mode, and SRT export. The Pro plan at $50 lifetime unlocks the professional timeline editor with video sync, vocal detection, drag-and-drop subtitle blocks, batch operations, and multi-format export to ASS, VTT, and TXT."
                 }
             },
             {
@@ -237,12 +231,12 @@
     <!-- Skip to main content (accessibility) -->
     <a href="#main-content" class="skip-link" id="skip-link">Skip to main content</a>
 
-    <!-- Top Urgency Bar -->
-    <div class="top-urgency-bar" id="top-urgency-bar" role="banner" aria-label="Limited time offer">
-        <div class="urgency-content">
-            <span>🎉 <strong>Limited Time:</strong> Get Pro for <strong>$50</strong> <span class="urgency-strikethrough">$79</span> — Save 37% · Price increases in <strong class="countdown-display" id="countdown-display">23:59:59</strong></span>
-            <a href="#" onclick="showTab('pricing'); return false;" class="urgency-btn">🔥 Upgrade Now</a>
-            <button class="urgency-close" onclick="this.parentElement.style.display='none'" aria-label="Close">✕</button>
+    <!-- Top Info Bar -->
+    <div class="top-info-bar" id="top-info-bar" role="banner" aria-label="Pro upgrade info">
+        <div class="info-content">
+            <span>🎬 <strong>Upgrade to Pro:</strong> Lifetime access — <strong>$50</strong> one-time payment</span>
+            <a href="#" onclick="showTab('pricing'); return false;" class="info-btn">🔥 Learn More</a>
+            <button class="info-close" onclick="this.parentElement.style.display='none'" aria-label="Close">✕</button>
         </div>
     </div>
 
@@ -428,7 +422,7 @@
             </section>
 
             <!-- ==========================================
-                 EDITOR TAB — PowerDirector-style Timeline
+                 EDITOR TAB — Multi-Track Timeline
                  ========================================== -->
             <section id="editor-tab" class="tab-content" aria-label="Timeline editor (Pro feature)">
                 <!-- Lock overlay for non-Pro users -->
@@ -442,7 +436,7 @@
                                 <strong>Pro Feature Locked</strong>
                                 <span class="pro-badge-sm">Pro</span>
                             </div>
-                            <p>The PowerDirector-style timeline editor is exclusive to <strong>Pro</strong> users.</p>
+                            <p>The professional multi-track timeline editor is exclusive to <strong>Pro</strong> users.</p>
                             <div class="lock-info-benefits">
                                 <span><span class="check-icon">✓</span> Video upload & timeline editing</span>
                                 <span><span class="check-icon">✓</span> Vocal audio detection & sync</span>
@@ -579,16 +573,14 @@
             </section>
 
             <section id="pricing-tab" class="tab-content" aria-label="Pricing plans">
-                <!-- Scarcity Bar -->
-                <div class="scarcity-bar">
-                    <span>⏳ <strong>Price increase in:</strong> <span class="countdown-timer" id="countdown-timer">23:59:59</span></span>
-                    <span class="scarcity-divider">·</span>
-                    <span><strong>$79</strong> <span class="strikethrough">regular</span> → <strong>$50</strong> today <span class="save-badge">Save 37%</span></span>
+                <!-- Pricing Info Bar -->
+                <div class="pricing-info-bar">
+                    <span>💰 <strong>One-time payment:</strong> $50 lifetime access · No subscriptions</span>
                 </div>
 
                 <!-- Hero -->
                 <div class="pricing-hero">
-                    <div class="pricing-hero-badge">🔥 534 Pro Users & Growing</div>
+                    <div class="pricing-hero-badge">🔥 Upgrade to the Pro Timeline Editor</div>
                     <h2>Stop Manual Editing.<br>Go <span class="text-gradient">Pro</span>.</h2>
                     <p class="pricing-subtitle">Free users spend 3x longer on subtitles. Upgrade and finish in half the time.</p>
                 </div>
@@ -628,7 +620,6 @@
                                 <span class="pricing-amount-regular">$79</span>
                             </div>
                             <p class="pricing-duration">One-time payment · Lifetime access</p>
-                            <div class="pricing-savings">You save $29 (37% off)</div>
                         </div>
                         <ul class="pricing-features-list">
                             <li class="check">✅ Everything in Free, plus...</li>
@@ -638,12 +629,12 @@
                             <li class="check">✅ 🔧 Advanced Batch Operations</li>
                             <li class="check">✅ 📥 Export to SRT, ASS, VTT, TXT</li>
                             <li class="check">✅ 💾 Lifetime Access & Updates</li>
-                            <li class="check">✅ 🎯 Priority Email Support</li>
-                            <li class="check bonus">🎁 <strong>Bonus:</strong> Sample subtitle pack ($19 value)</li>
+                            <li class="check">✅ 🎯 Email Support</li>
+                            <li class="check bonus">🎁 <strong>Bonus:</strong> Sample subtitle pack included</li>
                         </ul>
                         <div class="pricing-card-footer">
-                            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-cta">🔥 Get Pro Now — Save 37%</a>
-                            <p class="cta-trust">🔒 Secure PayPal checkout · 30-day guarantee</p>
+                            <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-cta">🔥 Get Pro Now — $50</a>
+                            <p class="cta-trust">🔒 Secure PayPal checkout · 30-day refund policy</p>
                         </div>
                         <div class="pricing-card-bottom">
                             <a href="#" onclick="unlockPro(); return false;" class="already-purchased">Already purchased? Click to activate</a>
@@ -653,7 +644,7 @@
 
                 <!-- "What You're Missing" Section -->
                 <div class="missing-out-section">
-                    <h3>😬 Here's What Free Users Are Missing</h3>
+                    <h3>😬 Pro Features</h3>
                     <div class="missing-grid">
                         <div class="missing-item">
                             <div class="missing-icon">⏱️</div>
@@ -698,67 +689,64 @@
 
                 <!-- Testimonials -->
                 <div class="pricing-testimonials">
-                    <h3>⭐ What Pro Users Say</h3>
+                    <h3>⭐ What Users Say</h3>
                     <div class="testimonials-grid">
                         <div class="testimonial-card">
                             <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
-                            <p>"The timeline editor alone is worth the $50. I saved 15 hours on my first project. This is a no-brainer for anyone doing subtitles regularly."</p>
+                            <p>"The timeline editor is excellent. I saved hours on my first project. Great value for anyone doing subtitles regularly."</p>
                             <div class="testimonial-author">
                                 <span class="testimonial-avatar">🎬</span>
                                 <div>
-                                    <strong>Marcus J.</strong>
-                                    <span>Video Editor · 12 years exp</span>
+                                    <strong>— Verified Pro User</strong>
                                 </div>
                             </div>
                         </div>
                         <div class="testimonial-card">
                             <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
-                            <p>"I was using Aegisub before. SRT Snap Pro is cleaner, faster, and the video sync feature is flawless. Worth every penny."</p>
+                            <p>"SRT Snap Pro is clean, fast, and the video sync feature works great. Much better than desktop alternatives."</p>
                             <div class="testimonial-author">
                                 <span class="testimonial-avatar">🎥</span>
                                 <div>
-                                    <strong>Sarah K.</strong>
-                                    <span>Content Creator · 50K subs</span>
+                                    <strong>— Verified Pro User</strong>
                                 </div>
                             </div>
                         </div>
                         <div class="testimonial-card">
                             <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
-                            <p>"Batch operations saved me from manually editing 200+ subtitle blocks. This tool paid for itself in one project. Highly recommended."</p>
+                            <p>"Batch operations saved me from manually editing hundreds of subtitle blocks. This tool paid for itself in one project."</p>
                             <div class="testimonial-author">
                                 <span class="testimonial-avatar">📺</span>
                                 <div>
-                                    <strong>David R.</strong>
-                                    <span>Post-Production · 8 years</span>
+                                    <strong>— Verified Pro User</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ROI Calculator -->
-                <div class="roi-section">
-                    <h3>🧮 The Math: Pro Pays for Itself</h3>
+                <!-- Value Section -->
+                <div class="value-section">
+                    <h3>🧮 Why Professionals Choose Pro</h3>
                     <div class="roi-grid">
                         <div class="roi-item">
-                            <div class="roi-value">15+</div>
-                            <p>Hours saved per project</p>
+                            <div class="roi-value">⏱️</div>
+                            <p>Faster editing with timeline drag-and-drop</p>
                         </div>
                         <div class="roi-item">
-                            <div class="roi-value">$75</div>
-                            <p>Average hourly rate for editors</p>
+                            <div class="roi-value">🎯</div>
+                            <p>Precision subtitle placement with video sync</p>
                         </div>
                         <div class="roi-item">
-                            <div class="roi-value">$1,125</div>
-                            <p>Saved on your first project alone</p>
+                            <div class="roi-value">📦</div>
+                            <p>Multi-format export (SRT, ASS, VTT, TXT)</p>
                         </div>
                         <div class="roi-item">
                             <div class="roi-value roi-investment">$50</div>
-                            <p>One-time Pro investment</p>
+                            <p>One-time investment for lifetime access</p>
                         </div>
                     </div>
                     <div class="roi-conclusion">
-                        <strong>ROI: 2,150%</strong> — Pro pays for itself 22x over on your first project.
+                        <strong>One payment. Lifetime access.</strong> No subscriptions, no recurring fees.
                     </div>
                 </div>
 
@@ -795,11 +783,10 @@
 
                 <!-- Final CTA -->
                 <div class="pricing-bottom-cta">
-                    <div class="final-cta-badge">⏳ Price increases to $79 soon</div>
-                    <h3>Ready to stop manual editing?</h3>
-                    <p>Join <strong>534+ professionals</strong> who've already upgraded to Pro</p>
-                    <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-cta btn-pro-cta-large">🔥 Get Pro Now — $50 (Save 37%)</a>
-                    <p class="cta-subtext">🔒 Secure PayPal checkout · 30-day money-back guarantee</p>
+                    <h3>Ready to upgrade your subtitle workflow?</h3>
+                    <p>Join professionals who use SRT Snap Pro every day</p>
+                    <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" class="btn-pro-cta btn-pro-cta-large">🔥 Get Pro Now — $50 Lifetime</a>
+                    <p class="cta-subtext">🔒 Secure PayPal checkout · 30-day refund policy</p>
                     <div class="cta-badges">
                         <span>✅ Instant access</span>
                         <span>✅ Lifetime updates</span>
@@ -823,7 +810,7 @@
             
             <div class="seo-faq-item">
                 <h3>Can I use SRT Snap for free?</h3>
-                <p>Yes! The free tier includes the basic SRT text editor, preview mode, and SRT export. For professional subtitle editing with video integration, the <a href="#" onclick="showTab('pricing'); return false;">Pro plan at $50 lifetime</a> unlocks the PowerDirector-style timeline editor, vocal detection for automatic speech syncing, drag-and-drop subtitle blocks, batch operations, and multi-format export to ASS, VTT, and TXT.</p>
+                <p>Yes! The free tier includes the basic SRT text editor, preview mode, and SRT export. For professional subtitle editing with video integration, the <a href="#" onclick="showTab('pricing'); return false;">Pro plan at $50 lifetime</a> unlocks the professional timeline editor with vocal detection for automatic speech syncing, drag-and-drop subtitle blocks, batch operations, and multi-format export to ASS, VTT, and TXT.</p>
             </div>
             
             <div class="seo-faq-item">
@@ -843,12 +830,12 @@
             
             <div class="seo-faq-item">
                 <h3>How do I upgrade to Pro and activate my license?</h3>
-                <p>Purchase a Pro license via PayPal for a one-time payment of $50. You'll receive a license key (format: SRTN-XXXX-XXXX-XXXX) by email. Enter this key in the License section of the app to activate lifetime access. You can also register an account to manage your license across multiple devices. If you lose your key, contact support with your PayPal transaction ID for recovery.</p>
+                <p>Purchase a Pro license via PayPal for a one-time payment of $50. You'll receive a license key (format: SRTN-XXXX-XXXX-XXXX) by email. Enter this key in the License section of the app to activate lifetime access. You can also register an account to manage your license across multiple devices. If you lose your key, email <strong>matthewbaker1993.mb@gmail.com</strong> with your PayPal transaction ID for recovery.</p>
             </div>
             
             <div class="seo-faq-item">
                 <h3>Can I edit subtitles while watching the video?</h3>
-                <p>Yes! The Pro timeline editor features a synchronized video player with real-time subtitle preview. As you play the video, the current subtitle is highlighted in the timeline and displayed as an overlay on the video. You can drag subtitle blocks to adjust timing, resize their duration, click to seek to any position, and see changes reflected immediately — similar to professional editing software like PowerDirector or Aegisub.</p>
+                <p>Yes! The Pro timeline editor features a synchronized video player with real-time subtitle preview. As you play the video, the current subtitle is highlighted in the timeline and displayed as an overlay on the video. You can drag subtitle blocks to adjust timing, resize their duration, click to seek to any position, and see changes reflected immediately — similar to professional editing software.</p>
             </div>
         </div>
     </section>
@@ -951,7 +938,7 @@
                     <a href="https://www.paypal.com/ncp/payment/2J3HBAQ663FCJ" target="_blank" style="color:var(--c-primary);font-weight:600;">Buy Now — $50</a>
                 </p>
                 <p class="auth-switch" style="font-size:0.78rem;color:var(--c-gray);margin-top:8px;">
-                    💡 Lost your key? Contact support with your PayPal transaction ID.
+                    💡 Lost your key? Email <strong>matthewbaker1993.mb@gmail.com</strong> with your PayPal transaction ID.
                 </p>
             </div>
         </div>
@@ -1016,6 +1003,114 @@
             <button class="shortcuts-close-btn" onclick="hideShortcuts()">Got it</button>
         </div>
     </div>
+
+    <!-- =============================================
+         PRIVACY POLICY MODAL
+         ============================================= -->
+    <div id="privacy-modal" class="legal-modal-overlay" style="display:none;" onclick="if(event.target===this)closePrivacyModal()">
+        <div class="legal-modal">
+            <div class="legal-modal-header">
+                <h2>Privacy Policy</h2>
+                <button class="auth-close" onclick="closePrivacyModal()">✕</button>
+            </div>
+            <div class="legal-modal-body">
+                <p><strong>Effective Date:</strong> June 17, 2026</p>
+                
+                <h3>1. Overview</h3>
+                <p>SRT Snap ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our subtitle editing application at <strong>https://cursed666-hash.github.io/srt-snap/</strong>.</p>
+                
+                <h3>2. No Data Collection</h3>
+                <p>SRT Snap is a 100% client-side application. All SRT file processing, video processing, and subtitle editing happens entirely in your web browser using JavaScript. We do not operate any servers that receive, store, or process your files. Your files never leave your computer.</p>
+                
+                <h3>3. Local Storage</h3>
+                <p>SRT Snap uses your browser's <code>localStorage</code> to store the following information locally on your device:</p>
+                <ul>
+                    <li>User account email address (if you register)</li>
+                    <li>Pro license activation status and key</li>
+                    <li>Theme preference (dark/light mode)</li>
+                    <li>Free usage counter for upgrade prompts</li>
+                </ul>
+                <p>This data never leaves your browser. You can clear it at any time via your browser settings or by clearing site data.</p>
+                
+                <h3>4. Third-Party Services</h3>
+                <p><strong>PayPal:</strong> When you purchase a Pro license, you are redirected to PayPal's secure checkout. Any payment information you provide is subject to PayPal's Privacy Policy. We do not receive or store any payment card details.</p>
+                <p><strong>Google Fonts:</strong> We use Google Fonts (Inter and Poppins) for typography. Loading these fonts may result in your IP address being sent to Google's servers. Refer to Google's Privacy Policy for details.</p>
+                
+                <h3>5. Emails</h3>
+                <p>If you contact us at <strong>matthewbaker1993.mb@gmail.com</strong>, we will only use your email address to respond to your inquiry. We do not send marketing emails or share your email with third parties.</p>
+                
+                <h3>6. No Cookies</h3>
+                <p>SRT Snap does not use tracking cookies, analytics cookies, or any form of user tracking. We use <code>localStorage</code> only for essential application functionality.</p>
+                
+                <h3>7. Children's Privacy</h3>
+                <p>Our service is not directed to children under 13. We do not knowingly collect any information from children.</p>
+                
+                <h3>8. Changes to This Policy</h3>
+                <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated effective date.</p>
+                
+                <h3>9. Contact</h3>
+                <p>For questions about this Privacy Policy, contact us at: <strong>matthewbaker1993.mb@gmail.com</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================================
+         TERMS OF SERVICE MODAL
+         ============================================= -->
+    <div id="terms-modal" class="legal-modal-overlay" style="display:none;" onclick="if(event.target===this)closeTermsModal()">
+        <div class="legal-modal">
+            <div class="legal-modal-header">
+                <h2>Terms of Service</h2>
+                <button class="auth-close" onclick="closeTermsModal()">✕</button>
+            </div>
+            <div class="legal-modal-body">
+                <p><strong>Effective Date:</strong> June 17, 2026</p>
+                
+                <h3>1. Acceptance of Terms</h3>
+                <p>By using SRT Snap ("the Service"), you agree to these Terms of Service. If you do not agree, do not use the Service.</p>
+                
+                <h3>2. Service Description</h3>
+                <p>SRT Snap is a client-side subtitle editing application. The Service is provided "as is" without any warranty, express or implied.</p>
+                
+                <h3>3. Free vs. Pro Accounts</h3>
+                <p><strong>Free Tier:</strong> Basic subtitle editing features are available at no cost.</p>
+                <p><strong>Pro Tier:</strong> Advanced features are available via a one-time payment of $50 USD. Pro access is tied to the email address used at purchase and is non-transferable. "Lifetime" access means for the useful lifetime of the current version of the application.</p>
+                
+                <h3>4. License Key</h3>
+                <p>Upon purchasing Pro, you will receive a license key (format: SRTN-XXXX-XXXX-XXXX). This key may be used on multiple devices under your control. You may not distribute, resell, or publicly share your license key.</p>
+                
+                <h3>5. Refund Policy</h3>
+                <p>We offer a 30-day refund policy. If you are not satisfied with Pro, email <strong>matthewbaker1993.mb@gmail.com</strong> with your PayPal transaction ID within 30 days of purchase for a full refund. Refunds are processed through PayPal.</p>
+                
+                <h3>6. User Responsibilities</h3>
+                <p>You agree not to:</p>
+                <ul>
+                    <li>Use the Service for any unlawful purpose</li>
+                    <li>Attempt to reverse engineer, modify, or bypass the Pro licensing system</li>
+                    <li>Upload or process content that violates any applicable law</li>
+                    <li>Distribute, resell, or sublicense access to the Service</li>
+                </ul>
+                
+                <h3>7. Intellectual Property</h3>
+                <p>The SRT Snap name, logo, and application code are the exclusive property of the service operator. You retain all rights to your subtitle files and video content processed through the Service.</p>
+                
+                <h3>8. Limitation of Liability</h3>
+                <p>To the maximum extent permitted by law, SRT Snap and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service. The total liability shall not exceed the amount paid by you for Pro access ($50 USD).</p>
+                
+                <h3>9. Disclaimer of Warranties</h3>
+                <p>The Service is provided "as is" and "as available" without warranties of any kind, either express or implied, including but not limited to merchantability, fitness for a particular purpose, or non-infringement.</p>
+                
+                <h3>10. Changes to Terms</h3>
+                <p>We reserve the right to modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the new Terms.</p>
+                
+                <h3>11. Governing Law</h3>
+                <p>These Terms shall be governed by the applicable laws. Any disputes shall be resolved through binding arbitration.</p>
+                
+                <h3>12. Contact</h3>
+                <p>For questions about these Terms, contact us at: <strong>matthewbaker1993.mb@gmail.com</strong></p>
+            </div>
+        </div>
+    </div>
 </main>
 
     <!-- Footer -->
@@ -1028,12 +1123,16 @@
             <div class="footer-links">
                 <a href="https://github.com/Cursed666-hash/srt-snap" target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub">GitHub</a>
                 <span class="footer-sep" aria-hidden="true">·</span>
-                <a href="#" onclick="showTab('pricing'); return false;">Pricing &amp; Upgrade</a>
+                <a href="#" onclick="showTab('pricing'); return false;">Pricing</a>
                 <span class="footer-sep" aria-hidden="true">·</span>
-                <a href="mailto:matthewbaker1993.mb@gmail.com" rel="noopener noreferrer">Contact Support</a>
+                <a href="#" onclick="showPrivacyPolicy(); return false;">Privacy Policy</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="#" onclick="showTermsOfService(); return false;">Terms of Service</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="mailto:matthewbaker1993.mb@gmail.com" rel="noopener noreferrer">Support</a>
             </div>
             <div class="footer-copy">
-                &copy; 2026 SRT Snap. All rights reserved. · 100% client-side · No data leaves your computer
+                &copy; 2026 SRT Snap. MIT License. · 100% client-side · No data leaves your computer
             </div>
         </div>
     </footer>
@@ -1274,74 +1373,7 @@
             }
         }
 
-        // =============================================
-        // ADVANCED SALES PSYCHOLOGY FUNCTIONS
-        // =============================================
-
-        // Countdown Timer — creates scarcity
-        function getOrCreateExpiry() {
-            let expiry = localStorage.getItem('countdownExpiry');
-            if (!expiry) {
-                // Set expiry to 72 hours from first visit
-                expiry = Date.now() + 72 * 60 * 60 * 1000;
-                localStorage.setItem('countdownExpiry', expiry);
-            }
-            return parseInt(expiry);
-        }
-
-        function updateCountdown() {
-            const display = document.getElementById('countdown-timer') || document.getElementById('countdown-display');
-            if (!display) return;
-            
-            const target = getOrCreateExpiry();
-            const now = Date.now();
-            const diff = target - now;
-
-            if (diff <= 0) {
-                display.textContent = 'EXPIRED — Price Increased';
-                return;
-            }
-
-            const h = Math.floor(diff / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-            display.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-
-        // Animate social proof counters
-        function animateCounters() {
-            const filesEl = document.getElementById('files-count');
-            const usersEl = document.getElementById('users-count');
-            
-            if (filesEl) {
-                const target = 2847;
-                let current = 0;
-                const step = Math.ceil(target / 60);
-                const interval = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(interval);
-                    }
-                    filesEl.textContent = current.toLocaleString();
-                }, 30);
-            }
-
-            if (usersEl) {
-                const target = 534;
-                let current = 0;
-                const step = Math.ceil(target / 40);
-                const interval = setInterval(() => {
-                    current += step;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(interval);
-                    }
-                    usersEl.textContent = current.toLocaleString();
-                }, 30);
-            }
-        }
+        // Free usage counter for upgrade prompt
 
         // Show upgrade prompt after 3 file edits on free tier
         function checkFreeUsage() {
@@ -1942,13 +1974,6 @@
             // Initialize sticky CTA
             updateStickyCTA('upload');
 
-            // Start countdown timer
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-
-            // Animate social proof counters on load
-            animateCounters();
-
             // Init dark mode
             initDarkMode();
 
@@ -2012,6 +2037,20 @@
             document.getElementById('register-error').textContent = '';
             document.getElementById('verify-error').textContent = '';
             document.getElementById('verification-key-section').style.display = 'none';
+        }
+
+        // ---- Legal Modal Functions ----
+        function showPrivacyPolicy() {
+            document.getElementById('privacy-modal').style.display = 'flex';
+        }
+        function closePrivacyModal() {
+            document.getElementById('privacy-modal').style.display = 'none';
+        }
+        function showTermsOfService() {
+            document.getElementById('terms-modal').style.display = 'flex';
+        }
+        function closeTermsModal() {
+            document.getElementById('terms-modal').style.display = 'none';
         }
 
         // Switch between login, register, and verify tabs

@@ -1311,7 +1311,7 @@ select:focus-visible {
     border: 1px solid rgba(255, 183, 3, 0.2);
 }
 
-.scarcity-bar strong {
+.pricing-info-bar strong {
     color: white;
 }
 
@@ -1326,16 +1326,16 @@ select:focus-visible {
     border-radius: 4px;
 }
 
-.scarcity-divider {
+.info-divider {
     color: var(--c-dark-3);
 }
 
-.strikethrough {
+.old-price-strikethrough {
     text-decoration: line-through;
     color: var(--c-gray) !important;
 }
 
-.save-badge {
+.price-badge {
     display: inline-block;
     background: var(--c-success);
     color: white;
@@ -1515,7 +1515,7 @@ select:focus-visible {
     margin-top: 8px;
 }
 
-.pricing-savings {
+.pricing-savings-old {
     background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
     color: #065F46;
     font-size: 0.78rem;
@@ -1828,13 +1828,13 @@ select:focus-visible {
 }
 
 /* ----- ROI CALCULATOR ----- */
-.roi-section {
+.value-section {
     max-width: 800px;
     margin: 0 auto 40px;
     text-align: center;
 }
 
-.roi-section h3 {
+.value-section h3 {
     font-size: 1.4rem;
     color: var(--c-dark);
     margin-bottom: 24px;
@@ -1946,7 +1946,7 @@ select:focus-visible {
     border-top: 1px solid var(--c-light-2);
 }
 
-.final-cta-badge {
+.cta-badge-old {
     display: inline-block;
     background: rgba(255, 107, 53, 0.1);
     color: var(--c-primary);
@@ -1970,7 +1970,7 @@ select:focus-visible {
     margin-bottom: 20px;
 }
 
-.pricing-bottom-cta .btn-pro-cta {
+.pricing-bottom-cta .btn-pro-cta-large {
     margin-bottom: 12px;
 }
 
@@ -2620,12 +2620,12 @@ body.dark-mode .skip-link { background: var(--c-primary); }
         font-size: 2.4rem;
     }
 
-    .scarcity-bar {
+    .pricing-info-bar {
         font-size: 0.8rem;
         padding: 10px 14px;
     }
 
-    .top-urgency-bar {
+    .top-info-bar {
         font-size: 0.75rem;
         padding: 8px 12px;
     }
@@ -2671,7 +2671,7 @@ body.dark-mode .skip-link { background: var(--c-primary); }
 }
 
 @media print {
-    .top-urgency-bar, .sticky-cta-bar { display: none !important; }
+    .top-info-bar, .sticky-cta-bar { display: none !important; }
     .container { padding: 0; }
 }
 
@@ -2890,6 +2890,127 @@ body.dark-mode .skip-link { background: var(--c-primary); }
 
 .auth-switch a:hover {
     color: var(--c-primary-dark);
+}
+
+/* =============================================
+   LEGAL MODALS — Privacy Policy & Terms of Service
+   ============================================= */
+.legal-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+}
+
+.legal-modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    max-width: 720px;
+    width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.25s ease;
+}
+
+body.dark-mode .legal-modal {
+    background: #0F172A;
+    border: 1px solid #1E293B;
+}
+
+.legal-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--c-light-2);
+    flex-shrink: 0;
+}
+
+body.dark-mode .legal-modal-header {
+    border-color: #1E293B;
+}
+
+.legal-modal-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--c-dark);
+    margin: 0;
+}
+
+body.dark-mode .legal-modal-header h2 {
+    color: var(--c-light);
+}
+
+.legal-modal-body {
+    padding: 24px 28px;
+    overflow-y: auto;
+    flex: 1;
+    line-height: 1.7;
+    font-size: 0.88rem;
+    color: var(--c-dark-2);
+}
+
+body.dark-mode .legal-modal-body {
+    color: var(--c-gray-light);
+}
+
+.legal-modal-body h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-dark);
+    margin: 20px 0 8px;
+}
+
+body.dark-mode .legal-modal-body h3 {
+    color: var(--c-light);
+}
+
+.legal-modal-body h3:first-child {
+    margin-top: 0;
+}
+
+.legal-modal-body p {
+    margin: 0 0 12px;
+    color: var(--c-gray-dark);
+}
+
+body.dark-mode .legal-modal-body p {
+    color: var(--c-gray);
+}
+
+.legal-modal-body ul {
+    margin: 0 0 12px;
+    padding-left: 20px;
+}
+
+.legal-modal-body li {
+    margin-bottom: 4px;
+    color: var(--c-gray-dark);
+}
+
+body.dark-mode .legal-modal-body li {
+    color: var(--c-gray);
+}
+
+.legal-modal-body code {
+    font-size: 0.82rem;
+    background: rgba(255,107,53,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--c-primary);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* =============================================
