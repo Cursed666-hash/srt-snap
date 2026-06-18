@@ -685,6 +685,9 @@
                         <span class="trust-badge">⚡ <strong>Instant Access</strong> — Right after payment</span>
                         <span class="trust-badge">📧 <strong>Lifetime Updates</strong> — Free forever</span>
                     </div>
+                    <p style="text-align:center;margin-top:12px;font-size:0.82rem;color:var(--c-gray);">
+                        Need a refund? <a href="#" onclick="showSupportModal(); return false;" style="color:var(--c-primary);text-decoration:underline;">Submit a refund request</a>
+                    </p>
                 </div>
 
                 <!-- Testimonials -->
@@ -792,6 +795,9 @@
                         <span>✅ Lifetime updates</span>
                         <span>✅ No subscriptions</span>
                     </div>
+                    <p style="text-align:center;margin-top:14px;font-size:0.82rem;">
+                        <a href="#" onclick="showSupportModal(); return false;" style="color:var(--c-gray);">💰 Request a refund or submit a complaint</a>
+                    </p>
                 </div>
                 </div>
             </div>
@@ -1111,6 +1117,62 @@
             </div>
         </div>
     </div>
+
+    <!-- =============================================
+         CUSTOMER SUPPORT MODAL — Refunds & Complaints
+         ============================================= -->
+    <div id="support-modal" class="legal-modal-overlay" style="display:none;" onclick="if(event.target===this)closeSupportModal()">
+        <div class="legal-modal">
+            <div class="legal-modal-header">
+                <h2>📬 Customer Support</h2>
+                <button class="auth-close" onclick="closeSupportModal()">✕</button>
+            </div>
+            <div class="legal-modal-body">
+                <p style="margin-bottom:16px;">Submit a refund request, report an issue, or send general feedback. Your message will be sent directly to our support team.</p>
+                
+                <form id="support-form" onsubmit="submitSupportForm(event)">
+                    <div class="support-field">
+                        <label for="support-type">Request Type</label>
+                        <select id="support-type" required>
+                            <option value="">— Select —</option>
+                            <option value="Refund Request">💰 Refund Request</option>
+                            <option value="Bug Report">🐛 Bug Report</option>
+                            <option value="Feature Request">💡 Feature Request</option>
+                            <option value="Complaint">⚠️ Complaint</option>
+                            <option value="General Inquiry">❓ General Inquiry</option>
+                        </select>
+                    </div>
+                    
+                    <div class="support-field">
+                        <label for="support-email">Your Email</label>
+                        <input type="email" id="support-email" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="support-field" id="paypal-field" style="display:none;">
+                        <label for="support-paypal">PayPal Transaction ID <span style="color:var(--c-gray);font-weight:400;">(for refunds)</span></label>
+                        <input type="text" id="support-paypal" placeholder="e.g. 9AR12345AB678901X">
+                    </div>
+                    
+                    <div class="support-field">
+                        <label for="support-subject">Subject</label>
+                        <input type="text" id="support-subject" placeholder="Brief summary of your request" required>
+                    </div>
+                    
+                    <div class="support-field">
+                        <label for="support-message">Message</label>
+                        <textarea id="support-message" rows="5" placeholder="Describe your issue, complaint, or request in detail..." required></textarea>
+                    </div>
+                    
+                    <div class="support-field-info">
+                        <p>📧 Your message will be sent via your default email client. No data is stored on any server.</p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success support-submit-btn">📨 Send Message</button>
+                    <div id="support-error" class="support-error"></div>
+                </form>
+            </div>
+        </div>
+    </div>
 </main>
 
     <!-- Footer -->
@@ -1129,7 +1191,9 @@
                 <span class="footer-sep" aria-hidden="true">·</span>
                 <a href="#" onclick="showTermsOfService(); return false;">Terms of Service</a>
                 <span class="footer-sep" aria-hidden="true">·</span>
-                <a href="mailto:SpoiledAvocado.discord@gmail.com" rel="noopener noreferrer">Support</a>
+                <a href="#" onclick="showSupportModal(); return false;">Complaints / Refunds</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="mailto:SpoiledAvocado.discord@gmail.com" rel="noopener noreferrer">Email</a>
             </div>
             <div class="footer-copy">
                 &copy; 2026 SRT Snap. MIT License. · 100% client-side · No data leaves your computer
@@ -2051,6 +2115,68 @@
         }
         function closeTermsModal() {
             document.getElementById('terms-modal').style.display = 'none';
+        }
+
+        // ---- Customer Support Modal ----
+        function showSupportModal() {
+            document.getElementById('support-modal').style.display = 'flex';
+            document.getElementById('support-error').textContent = '';
+        }
+        function closeSupportModal() {
+            document.getElementById('support-modal').style.display = 'none';
+            document.getElementById('support-error').textContent = '';
+        }
+
+        // Show/hide PayPal transaction ID field based on request type
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.id === 'support-type') {
+                const paypalField = document.getElementById('paypal-field');
+                if (paypalField) {
+                    paypalField.style.display = e.target.value === 'Refund Request' ? 'block' : 'none';
+                }
+            }
+        });
+
+        // Submit support form via mailto:
+        function submitSupportForm(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('support-type').value;
+            const email = document.getElementById('support-email').value;
+            const paypal = document.getElementById('support-paypal') ? document.getElementById('support-paypal').value : '';
+            const subject = document.getElementById('support-subject').value;
+            const message = document.getElementById('support-message').value;
+            
+            if (!type || !email || !subject || !message) {
+                document.getElementById('support-error').textContent = 'Please fill out all required fields.';
+                return;
+            }
+            
+            // Build email body
+            let body = `Request Type: ${type}\n`;
+            body += `From Email: ${email}\n`;
+            if (paypal) body += `PayPal Transaction ID: ${paypal}\n`;
+            body += `\n--- Message ---\n${message}\n`;
+            body += `\n--- User Info ---\n`;
+            body += `Submitted from: SRT Snap (${window.location.href})\n`;
+            body += `Date: ${new Date().toISOString()}\n`;
+            
+            const mailtoLink = `mailto:SpoiledAvocado.discord@gmail.com?subject=${encodeURIComponent('[SRT Snap] ' + type + ': ' + subject)}&body=${encodeURIComponent(body)}`;
+            
+            // Open default email client with pre-filled message
+            window.location.href = mailtoLink;
+            
+            // Show success message
+            document.getElementById('support-error').style.color = 'var(--c-success)';
+            document.getElementById('support-error').textContent = '✅ Your email client has been opened with the pre-filled message. Please review and send.';
+            
+            // Reset form after 3 seconds
+            setTimeout(() => {
+                document.getElementById('support-form').reset();
+                document.getElementById('paypal-field').style.display = 'none';
+                document.getElementById('support-error').textContent = '';
+                document.getElementById('support-error').style.color = 'var(--c-error)';
+            }, 4000);
         }
 
         // Switch between login, register, and verify tabs

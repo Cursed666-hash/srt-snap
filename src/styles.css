@@ -3014,6 +3014,103 @@ body.dark-mode .legal-modal-body li {
 }
 
 /* =============================================
+   CUSTOMER SUPPORT FORM (inside legal modals)
+   ============================================= */
+.support-field {
+    margin-bottom: 16px;
+}
+
+.support-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--c-dark-2);
+    margin-bottom: 5px;
+}
+
+body.dark-mode .support-field label {
+    color: var(--c-light);
+}
+
+.support-field input,
+.support-field select,
+.support-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--c-light-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    transition: all 0.2s;
+    background: var(--c-light);
+    color: var(--c-dark-2);
+    box-sizing: border-box;
+}
+
+body.dark-mode .support-field input,
+body.dark-mode .support-field select,
+body.dark-mode .support-field textarea {
+    background: #1E293B;
+    border-color: #334155;
+    color: var(--c-light);
+}
+
+.support-field input:focus,
+.support-field select:focus,
+.support-field textarea:focus {
+    outline: none;
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+    background: white;
+}
+
+body.dark-mode .support-field input:focus,
+body.dark-mode .support-field select:focus,
+body.dark-mode .support-field textarea:focus {
+    background: #0F172A;
+    border-color: var(--c-primary);
+}
+
+.support-field textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.6;
+}
+
+.support-field-info {
+    margin: 12px 0 16px;
+    padding: 10px 14px;
+    background: rgba(46, 196, 182, 0.08);
+    border: 1px solid rgba(46, 196, 182, 0.2);
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    color: var(--c-gray-dark);
+    line-height: 1.5;
+}
+
+body.dark-mode .support-field-info {
+    background: rgba(46, 196, 182, 0.06);
+    border-color: rgba(46, 196, 182, 0.15);
+    color: var(--c-gray);
+}
+
+.support-submit-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.support-error {
+    color: var(--c-error);
+    font-size: 0.85rem;
+    margin-top: 10px;
+    min-height: 20px;
+    text-align: center;
+}
+
+/* =============================================
    EDITOR TAB — Timeline Editor UI
    ============================================= */
 
