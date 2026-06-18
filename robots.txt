@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://cursed666-hash.github.io/srt-snap/sitemap.xml
+
+# Disallow admin/secret paths
+Disallow: /src/secret-config.js

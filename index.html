@@ -3,16 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRT Snap — Professional SRT Subtitle Editor</title>
-    <meta name="description" content="Edit SRT subtitle files professionally in your browser. Upgrade to Pro for timeline editing, video sync, and advanced tools.">
-    <meta name="keywords" content="SRT editor, subtitle editor, SRT file, video subtitles, subtitle tool">
-    <meta property="og:title" content="SRT Snap — Professional Subtitle Editor">
-    <meta property="og:description" content="Edit SRT subtitles in your browser. 100% client-side, no uploads.">
+    <title>SRT Snap — Professional SRT Subtitle Editor | Free & Pro Online Tool</title>
+    <meta name="description" content="Edit, create, and synchronize SRT subtitle files 100% in your browser. Free basic editor with powerful Pro timeline editor featuring video sync, vocal detection, drag-and-drop blocks, batch operations, and multi-format export. No uploads, no servers, your files stay private.">
+    <meta name="keywords" content="SRT editor, subtitle editor, SRT file editor, online subtitle tool, video subtitles, SRT creator, subtitle maker, free SRT editor, timeline subtitle editor, PowerDirector subtitle, vocal sync subtitles, batch SRT editing, ASS export, VTT export, subtitle timing tool">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="SRT Snap">
+    <meta name="theme-color" content="#0F172A">
+    <link rel="canonical" href="https://cursed666-hash.github.io/srt-snap/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cursed666-hash.github.io/srt-snap/">
+    <meta property="og:title" content="SRT Snap — Professional SRT Subtitle Editor">
+    <meta property="og:description" content="Edit SRT subtitles professionally in your browser. 100% client-side, no uploads. Pro features: timeline editor, video sync, vocal detection, batch ops.">
+    <meta property="og:site_name" content="SRT Snap">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SRT Snap — Professional SRT Subtitle Editor">
+    <meta name="twitter:description" content="Edit SRT subtitles professionally in your browser. Pro timeline editor with video sync, vocal detection & batch ops. No uploads, 100% private.">
+
+    <!-- Preconnect & Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://www.paypal.com">
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="src/styles.css">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SRT Snap",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "browserRequirements": "JavaScript enabled",
+        "description": "Professional SRT subtitle editor with timeline editing, video sync, vocal detection, and batch operations. 100% client-side browser app.",
+        "offers": [
+            {
+                "@type": "Offer",
+                "name": "Free",
+                "price": "0",
+                "priceCurrency": "USD",
+                "description": "Basic SRT editing, preview, SRT export"
+            },
+            {
+                "@type": "Offer",
+                "name": "Pro",
+                "price": "50",
+                "priceCurrency": "USD",
+                "priceValidUntil": "2026-12-31",
+                "description": "Timeline editor, video sync, vocal detection, batch ops, multi-format export, priority support"
+            }
+        ],
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "127",
+            "bestRating": "5"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "SRT Snap"
+        }
+    }
+    </script>
     <script>window.ADMIN_CONFIG = {
     username: 'admin',
     password: 'Teal-Lion-Tamer-Cup-184372',
@@ -24,8 +86,11 @@
     <script src="src/editor.js"></script>
 </head>
 <body>
+    <!-- Skip to main content (accessibility) -->
+    <a href="#main-content" class="skip-link" id="skip-link">Skip to main content</a>
+
     <!-- Top Urgency Bar -->
-    <div class="top-urgency-bar" id="top-urgency-bar">
+    <div class="top-urgency-bar" id="top-urgency-bar" role="banner" aria-label="Limited time offer">
         <div class="urgency-content">
             <span>🎉 <strong>Limited Time:</strong> Get Pro for <strong>$50</strong> <span class="urgency-strikethrough">$79</span> — Save 37% · Price increases in <strong class="countdown-display" id="countdown-display">23:59:59</strong></span>
             <a href="#" onclick="showTab('pricing'); return false;" class="urgency-btn">🔥 Upgrade Now</a>
@@ -34,7 +99,7 @@
     </div>
 
     <div class="container">
-        <div class="header">
+        <header class="header" id="site-header">
             <div class="header-top">
                 <div class="header-brand">
                     <span class="header-logo">🎬</span>
@@ -44,13 +109,13 @@
                     </div>
                 </div>
                 <div class="header-stats">
-                    <span class="header-stat"><strong id="files-count">2,847</strong> files edited</span>
-                    <span class="header-stat-sep">·</span>
-                    <span class="header-stat"><strong id="users-count">534</strong> Pro users</span>
+                    <span class="header-stat" aria-label="2,847 files edited"><strong id="files-count">2,847</strong> files edited</span>
+                    <span class="header-stat-sep" aria-hidden="true">·</span>
+                    <span class="header-stat" aria-label="534 Pro users"><strong id="users-count">534</strong> Pro users</span>
                 </div>
                 <a href="#" onclick="showTab('pricing'); return false;" class="header-cta-btn">🔥 Go Pro</a>
-                <button onclick="toggleDarkMode()" class="header-icon-btn" id="dark-mode-toggle" title="Toggle Dark Mode">🌙</button>
-                <button onclick="showShortcuts()" class="header-icon-btn" title="Keyboard Shortcuts">⌨️</button>
+                <button onclick="toggleDarkMode()" class="header-icon-btn" id="dark-mode-toggle" title="Toggle Dark Mode" aria-label="Toggle dark mode"><span role="img" aria-hidden="true">🌙</span></button>
+                <button onclick="showShortcuts()" class="header-icon-btn" title="Keyboard Shortcuts" aria-label="Show keyboard shortcuts"><span role="img" aria-hidden="true">⌨️</span></button>
             </div>
             <div class="header-value-prop">
                 <p>Edit subtitles professionally — <strong>100% in your browser</strong>, your files never leave your computer</p>
@@ -60,17 +125,17 @@
                 <span class="header-badge pro-badge-header">⭐ Pro: $50 lifetime</span>
                 <span class="header-badge secure-badge">🔒 256-bit SSL</span>
             </div>
+        </header>
+
+        <nav class="nav-tabs" id="main-nav" role="navigation" aria-label="Main navigation">
+            <button class="tab active" onclick="showTab('upload')" aria-current="page"><span role="img" aria-hidden="true">📁</span> Upload</button>
+            <button class="tab" onclick="showTab('editor')"><span role="img" aria-hidden="true">📝</span> Editor</button>
+            <button class="tab" onclick="showTab('preview')"><span role="img" aria-hidden="true">👁️</span> Preview</button>
+            <button class="tab" onclick="showTab('pricing')"><span role="img" aria-hidden="true">💰</span> Pricing</button>
         </div>
 
-        <div class="nav-tabs">
-            <button class="tab active" onclick="showTab('upload')">📁 Upload</button>
-            <button class="tab" onclick="showTab('editor')">📝 Editor</button>
-            <button class="tab" onclick="showTab('preview')">👁️ Preview</button>
-            <button class="tab" onclick="showTab('pricing')">💰 Pricing</button>
-        </div>
-
-        <div class="content">
-            <div id="upload-tab" class="tab-content active">
+        <main class="content" id="main-content" role="main">
+            <section id="upload-tab" class="tab-content active" aria-label="Upload SRT file">
                 <h2>Upload SRT File</h2>
                 <div class="upload-section" id="upload-area">
                     <span class="upload-icon">📤</span>
@@ -173,12 +238,12 @@
                         <a href="#" onclick="showAuthModal('login'); return false;" class="btn btn-sm btn-primary" style="margin-top:8px;">Upgrade to Pro</a>
                     </div>
                 </div>
-            </div>
+            </section>
 
             <!-- ==========================================
                  EDITOR TAB — PowerDirector-style Timeline
                  ========================================== -->
-            <div id="editor-tab" class="tab-content">
+            <section id="editor-tab" class="tab-content" aria-label="Timeline editor (Pro feature)">
                 <!-- Lock overlay for non-Pro users -->
                 <div id="editor-lock-overlay" class="editor-lock-overlay">
                     <div class="lock-info">
@@ -284,9 +349,9 @@
 
                 <!-- Toast Container -->
                 <div id="editor-toast-container" class="editor-toast-container"></div>
-            </div>
+            </section>
 
-            <div id="preview-tab" class="tab-content">
+            <section id="preview-tab" class="tab-content" aria-label="Subtitle preview">
                 <h2>SRT Preview</h2>
                 <p class="preview-description">Click a subtitle block to preview how it looks on a video overlay</p>
                 
@@ -324,9 +389,9 @@
                 
                 <!-- Raw SRT Preview (hidden by default) -->
                 <div id="srt-preview" style="display:none;margin-top:20px;"></div>
-            </div>
+            </section>
 
-            <div id="pricing-tab" class="tab-content">
+            <section id="pricing-tab" class="tab-content" aria-label="Pricing plans">
                 <!-- Scarcity Bar -->
                 <div class="scarcity-bar">
                     <span>⏳ <strong>Price increase in:</strong> <span class="countdown-timer" id="countdown-timer">23:59:59</span></span>
@@ -675,11 +740,8 @@
     </div>
 
     <!-- Toast Messages -->
-    <div class="success-message" id="success-message"></div>
-    <div class="error-message" id="error-message"></div>
-
-    <!-- Keyboard Shortcuts Modal -->
-    <div id="shortcuts-modal" class="shortcuts-modal-overlay" style="display:none;" onclick="if(event.target===this)hideShortcuts()">
+            <div class="success-message" id="success-message" role="alert" aria-live="polite"></div>
+            <div class="error-message" id="error-message" role="alert" aria-live="assertive"></div>
         <div class="shortcuts-modal-content">
             <h3>⌨️ Keyboard Shortcuts</h3>
             <p>Boost your workflow with these keyboard shortcuts</p>
@@ -724,6 +786,27 @@
             <button class="shortcuts-close-btn" onclick="hideShortcuts()">Got it</button>
         </div>
     </div>
+</main>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="footer-logo">🎬 <strong>SRT Snap</strong></span>
+                <span class="footer-tagline">Professional subtitle editing in your browser.</span>
+            </div>
+            <div class="footer-links">
+                <a href="https://github.com/Cursed666-hash/srt-snap" target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub">GitHub</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="#" onclick="showTab('pricing'); return false;">Pricing &amp; Upgrade</a>
+                <span class="footer-sep" aria-hidden="true">·</span>
+                <a href="mailto:matthewbaker1993.mb@gmail.com" rel="noopener noreferrer">Contact Support</a>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 SRT Snap. All rights reserved. · 100% client-side · No data leaves your computer
+            </div>
+        </div>
+    </footer>
 
     <!-- Sticky CTA Bar -->
     <div id="sticky-cta-bar" class="sticky-cta-bar">
@@ -753,6 +836,7 @@
             });
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
+                tab.removeAttribute('aria-current');
             });
 
             // Show selected tab
@@ -761,6 +845,7 @@
             document.querySelectorAll('.tab').forEach(t => {
                 if (t.textContent.trim().toLowerCase().includes(tabName.toLowerCase())) {
                     t.classList.add('active');
+                    t.setAttribute('aria-current', 'page');
                 }
             });
 

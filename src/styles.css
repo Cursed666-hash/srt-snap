@@ -2519,6 +2519,12 @@ body.dark-mode .preview-speed-control select,
 body.dark-mode .editor-btn-sm,
 body.dark-mode .editor-btn-xs { background: #1E293B; border-color: #334155; color: var(--c-light); }
 
+/* Footer & Skip-link dark mode */
+body.dark-mode .site-footer { background: linear-gradient(135deg, #0F172A, #0B1120); border-color: #1E293B; }
+body.dark-mode .footer-links a { color: var(--c-gray-dark); }
+body.dark-mode .footer-links a:hover { color: var(--c-primary); }
+body.dark-mode .skip-link { background: var(--c-primary); }
+
 /* ----- RESPONSIVE ----- */
 @media (max-width: 768px) {
     .container {
@@ -3389,6 +3395,93 @@ body.dark-mode .editor-btn-xs { background: #1E293B; border-color: #334155; colo
         margin: 10px;
         border-radius: var(--radius-md);
     }
+}
+
+/* =============================================
+   SKIP TO MAIN CONTENT (accessibility)
+   ============================================= */
+.skip-link {
+    position: absolute;
+    top: -60px;
+    left: 10px;
+    background: var(--c-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 1000;
+    text-decoration: none;
+    transition: top 0.2s;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.site-footer {
+    background: linear-gradient(135deg, var(--c-dark), #0B1120);
+    border-top: 1px solid var(--c-dark-3);
+    padding: 24px 20px;
+    margin-top: 40px;
+}
+
+.footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-logo {
+    font-size: 1.1rem;
+    color: var(--c-light);
+}
+
+.footer-tagline {
+    font-size: 0.82rem;
+    color: var(--c-gray);
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.footer-links a {
+    color: var(--c-gray);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--c-primary);
+}
+
+.footer-sep {
+    color: var(--c-dark-3);
+    font-size: 0.7rem;
+}
+
+.footer-copy {
+    font-size: 0.75rem;
+    color: var(--c-gray-dark);
 }
 
 /* =============================================
