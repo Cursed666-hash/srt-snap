@@ -1,17 +1,23 @@
 /* =============================================
    SRT Snap — User Authentication System
-   Register, Login, License Key Management
+   Cloudflare API + localStorage fallback
    ============================================= */
 
 const AuthSystem = (() => {
-    // ---- Constants ----
-    const STORAGE_KEY_USERS = 'srtSnap_users';
+    // ---- Configuration ----
+    // Set by secret-config.js when running on Cloudflare (optional)
+    // Auto-detects current origin when on http/https.
+    // Falls back to localStorage when running locally (file://).
+    const API_BASE = window.CLOUDFLARE_API_URL || (window.location.protocol !== 'file:' ? window.location.origin : null);
+    const USE_API = !!API_BASE;
+    
+    // ---- Constants (localStorage fallback) ----
     const STORAGE_KEY_SESSION = 'srtSnap_session';
     const STORAGE_KEY_PRO = 'srtSnap_proLicense';
-    const STORAGE_KEY_VERIFICATION = 'srtSnap_verificationKeys';
+    const STORAGE_KEY_TOKEN = 'srtSnap_sessionToken';
     const SECRET_SALT = 'SRT_SNAP_V1_SECURE_2024';
 
-    // ---- Simple hash (not crypto-grade, but sufficient for client-side demo) ----
+    // ---- Simple hash (for local fallback) ----
     function simpleHash(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
@@ -26,7 +32,6 @@ const AuthSystem = (() => {
     function generateLicenseKey(email) {
         const raw = email.toLowerCase().trim() + ':' + SECRET_SALT;
         const hash = simpleHash(raw);
-        // Format: SRTN-XXXX-XXXX-XXXX
         const p1 = 'SRTN';
         const p2 = hash.substring(0, 4).toUpperCase();
         const p3 = hash.substring(4, 8).toUpperCase();
@@ -34,39 +39,51 @@ const AuthSystem = (() => {
         return `${p1}-${p2}-${p3}-${p4}`;
     }
 
-    // ---- Validate License Key ----
+    // ---- Validate License Key (client-side) ----
     function validateLicenseKey(email, key) {
         const expected = generateLicenseKey(email);
         return key.trim().toUpperCase() === expected;
     }
 
-    // ---- User Data Management ----
-    function getUsers() {
+    // ---- API helper ----
+    async function apiPost(endpoint, body) {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || {};
-        } catch { return {}; }
+            const res = await fetch(`${API_BASE}/api/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            return await res.json();
+        } catch (err) {
+            return { success: false, error: 'Network error. Please check your connection.' };
+        }
     }
 
-    function saveUsers(users) {
-        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-    }
-
+    // ---- LocalStorage helpers (fallback) ----
     function getSession() {
         try {
             return JSON.parse(localStorage.getItem(STORAGE_KEY_SESSION)) || null;
         } catch { return null; }
     }
 
-    function saveSession(email) {
+    function saveSession(email, sessionToken) {
         localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify({
             email,
             loggedInAt: Date.now(),
             deviceId: navigator.userAgent + navigator.language
         }));
+        if (sessionToken) {
+            localStorage.setItem(STORAGE_KEY_TOKEN, sessionToken);
+        }
     }
 
     function clearSession() {
         localStorage.removeItem(STORAGE_KEY_SESSION);
+        localStorage.removeItem(STORAGE_KEY_TOKEN);
+    }
+
+    function getSessionToken() {
+        return localStorage.getItem(STORAGE_KEY_TOKEN);
     }
 
     function getProLicense() {
@@ -77,9 +94,7 @@ const AuthSystem = (() => {
 
     function saveProLicense(email, key) {
         localStorage.setItem(STORAGE_KEY_PRO, JSON.stringify({
-            email,
-            key,
-            activatedAt: Date.now()
+            email, key, activatedAt: Date.now()
         }));
     }
 
@@ -87,38 +102,9 @@ const AuthSystem = (() => {
         localStorage.removeItem(STORAGE_KEY_PRO);
     }
 
-    // ---- Verification Key Management ----
-    function getVerificationKeys() {
+    // ---- Admin Check (local only) ----
+    function isAdminUserLocal(email) {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY_VERIFICATION)) || {};
-        } catch { return {}; }
-    }
-
-    function saveVerificationKeys(keys) {
-        localStorage.setItem(STORAGE_KEY_VERIFICATION, JSON.stringify(keys));
-    }
-
-    function generateVerificationKey(email) {
-        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        let key = 'SRTV-';
-        for (let i = 0; i < 4; i++) {
-            key += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        key += '-';
-        for (let i = 0; i < 4; i++) {
-            key += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        key += '-';
-        for (let i = 0; i < 4; i++) {
-            key += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return key;
-    }
-
-    // ---- Admin Check ----
-    function isAdminUser(email) {
-        try {
-            // Check if ADMIN_CONFIG exists (from secret-config.js)
             if (window.ADMIN_CONFIG) {
                 return email.toLowerCase().trim() === (window.ADMIN_CONFIG.email || '').toLowerCase().trim();
             }
@@ -126,7 +112,7 @@ const AuthSystem = (() => {
         return false;
     }
 
-    function checkAdminCredentials(username, password) {
+    function checkAdminCredentialsLocal(username, password) {
         try {
             if (window.ADMIN_CONFIG) {
                 return username === window.ADMIN_CONFIG.username &&
@@ -136,19 +122,10 @@ const AuthSystem = (() => {
         return false;
     }
 
-    function getAdminProStatus() {
-        try {
-            if (window.ADMIN_CONFIG) {
-                return window.ADMIN_CONFIG.isPro === true;
-            }
-        } catch { }
-        return false;
-    }
-
     // ---- Public API ----
     return {
         // Register a new user
-        register(email, password) {
+        async register(email, password) {
             email = email.toLowerCase().trim();
             if (!email || !password) {
                 return { success: false, error: 'Email and password are required.' };
@@ -160,108 +137,106 @@ const AuthSystem = (() => {
                 return { success: false, error: 'Please enter a valid email address.' };
             }
 
-            const users = getUsers();
+            if (USE_API) {
+                const result = await apiPost('register', { email, password });
+                if (result.success) {
+                    saveSession(result.email, result.sessionToken);
+                }
+                return result;
+            }
+
+            // ---- LocalStorage fallback ----
+            const STORAGE_KEY_USERS = 'srtSnap_users';
+            const STORAGE_KEY_VERIFICATION = 'srtSnap_verificationKeys';
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || {};
             if (users[email]) {
                 return { success: false, error: 'An account with this email already exists. Please log in.' };
             }
-
             const hash = simpleHash(email + ':' + password + ':' + SECRET_SALT);
-            users[email] = {
-                passwordHash: hash,
-                createdAt: Date.now()
-            };
-            saveUsers(users);
-            saveSession(email);
-
-            // Generate and store verification key
-            const vkey = generateVerificationKey(email);
-            const keys = getVerificationKeys();
+            users[email] = { passwordHash: hash, createdAt: Date.now() };
+            localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+            
+            const vkey = 'SRTV-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + 
+                         Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + 
+                         Math.random().toString(36).substring(2, 6).toUpperCase();
+            const keys = JSON.parse(localStorage.getItem(STORAGE_KEY_VERIFICATION)) || {};
             keys[email] = { key: vkey, createdAt: Date.now() };
-            saveVerificationKeys(keys);
-
+            localStorage.setItem(STORAGE_KEY_VERIFICATION, JSON.stringify(keys));
+            
+            saveSession(email);
             return { success: true, email, verificationKey: vkey };
         },
 
         // Log in an existing user
-        login(email, password) {
+        async login(email, password) {
             email = email.toLowerCase().trim();
             if (!email || !password) {
                 return { success: false, error: 'Email and password are required.' };
             }
 
-            // Check admin credentials first (from gitignored secret-config.js)
-            if (checkAdminCredentials(email, password)) {
-                // Admin login — use admin email for session
+            if (USE_API) {
+                // Try admin login through API first
+                const adminResult = await apiPost('admin/login', { username: email, password });
+                if (adminResult.success) {
+                    saveSession(adminResult.email, adminResult.sessionToken);
+                    return adminResult;
+                }
+
+                // Regular user login
+                const result = await apiPost('login', { email, password });
+                if (result.success) {
+                    saveSession(result.email, result.sessionToken);
+                }
+                return result;
+            }
+
+            // ---- LocalStorage fallback ----
+            // Admin check (local)
+            if (checkAdminCredentialsLocal(email, password)) {
                 const adminEmail = window.ADMIN_CONFIG
                     ? window.ADMIN_CONFIG.email.toLowerCase().trim()
                     : email;
                 saveSession(adminEmail);
-                const adminPro = getAdminProStatus();
-                // Also save admin's Pro license if enabled
+                const adminPro = window.ADMIN_CONFIG ? window.ADMIN_CONFIG.isPro === true : false;
                 if (adminPro) {
                     saveProLicense(adminEmail, 'ADMIN-PRO-' + Date.now());
                 }
-                return {
-                    success: true,
-                    email: adminEmail,
-                    isPro: adminPro,
-                    isAdmin: true
-                };
+                return { success: true, email: adminEmail, isPro: adminPro, isAdmin: true };
             }
 
-            // If email looks like a username (no @), try to find by username in ADMIN_CONFIG
+            const STORAGE_KEY_USERS = 'srtSnap_users';
+            const STORAGE_KEY_VERIFICATION = 'srtSnap_verificationKeys';
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEY_USERS)) || {};
+            
             if (!email.includes('@')) {
-                // Try treating the input as username
-                const users = getUsers();
-                // Check if any user email matches username pattern
                 const matchedEmail = Object.keys(users).find(u => u.startsWith(email + '@') || u === email);
-                if (matchedEmail) {
-                    email = matchedEmail;
-                } else {
-                    return { success: false, error: 'No account found with this username. Please use your email.' };
-                }
+                if (matchedEmail) { email = matchedEmail; }
+                else { return { success: false, error: 'No account found with this username.' }; }
             }
 
-            const users = getUsers();
             const user = users[email];
             if (!user) {
                 return { success: false, error: 'No account found with this email. Please register first.' };
             }
-
             const hash = simpleHash(email + ':' + password + ':' + SECRET_SALT);
             if (hash !== user.passwordHash) {
                 return { success: false, error: 'Incorrect password. Please try again.' };
             }
 
             saveSession(email);
-
-            // Get verification key for this user
-            const keys = getVerificationKeys();
+            const keys = JSON.parse(localStorage.getItem(STORAGE_KEY_VERIFICATION)) || {};
             const userVKey = keys[email] ? keys[email].key : null;
-
-            // Restore Pro license if available for this email
             const pro = getProLicense();
-            if (pro && pro.email === email) {
-                return {
-                    success: true,
-                    email,
-                    isPro: true,
-                    verificationKey: userVKey,
-                    isAdmin: false
-                };
-            }
+            const isPro = !!(pro && pro.email === email);
 
-            return {
-                success: true,
-                email,
-                isPro: false,
-                verificationKey: userVKey,
-                isAdmin: false
-            };
+            return { success: true, email, isPro, verificationKey: userVKey, isAdmin: false };
         },
 
         // Log out
-        logout() {
+        async logout() {
+            if (USE_API) {
+                // Session invalidation on server is handled by TTL, but we clear locally
+            }
             clearSession();
             return { success: true };
         },
@@ -272,7 +247,7 @@ const AuthSystem = (() => {
         },
 
         // Activate Pro with a license key
-        activatePro(email, key) {
+        async activatePro(email, key) {
             email = (email || '').toLowerCase().trim();
             key = (key || '').trim();
 
@@ -280,30 +255,42 @@ const AuthSystem = (() => {
                 return { success: false, error: 'Email and license key are required.' };
             }
 
+            if (USE_API) {
+                const sessionToken = getSessionToken();
+                const result = await apiPost('verify-key', { email, key, sessionToken });
+                if (result.success) {
+                    saveProLicense(email, key);
+                }
+                return result;
+            }
+
+            // ---- LocalStorage fallback ----
             if (validateLicenseKey(email, key)) {
                 saveProLicense(email, key);
                 return { success: true, email, key };
             }
-
             return { success: false, error: 'Invalid license key. Please check your key and try again.' };
         },
 
-        // Generate a license key for an email (after PayPal purchase)
+        // Generate a license key for an email
         generateLicenseKey(email) {
             return generateLicenseKey(email);
         },
 
         // ---- Verification Key API ----
 
-        // Get the verification key for a user
         getVerificationKey(email) {
             email = (email || '').toLowerCase().trim();
-            const keys = getVerificationKeys();
+            if (USE_API) {
+                // This is available from the session or user data
+                return null; // Users should check via init() or login response
+            }
+            const STORAGE_KEY_VERIFICATION = 'srtSnap_verificationKeys';
+            const keys = JSON.parse(localStorage.getItem(STORAGE_KEY_VERIFICATION)) || {};
             return keys[email] ? keys[email].key : null;
         },
 
-        // Verify Pro status using a verification key
-        verifyWithKey(email, key) {
+        async verifyWithKey(email, key) {
             email = (email || '').toLowerCase().trim();
             key = (key || '').trim().toUpperCase();
 
@@ -311,33 +298,47 @@ const AuthSystem = (() => {
                 return { success: false, error: 'Email and verification key are required.' };
             }
 
-            const keys = getVerificationKeys();
-            const record = keys[email];
+            if (USE_API) {
+                // Verification key is handled during registration on the server.
+                // Use the verify-key endpoint to activate Pro.
+                const result = await apiPost('verify-key', { email, key });
+                if (result.success) {
+                    saveProLicense(email, key);
+                    saveSession(email, getSessionToken());
+                }
+                return result;
+            }
 
+            // ---- LocalStorage fallback ----
+            const STORAGE_KEY_VERIFICATION = 'srtSnap_verificationKeys';
+            const keys = JSON.parse(localStorage.getItem(STORAGE_KEY_VERIFICATION)) || {};
+            const record = keys[email];
             if (record && record.key === key) {
-                // Valid key — activate Pro
-                const licenseKey = this.generateLicenseKey(email);
+                const licenseKey = generateLicenseKey(email);
                 saveProLicense(email, licenseKey);
                 saveSession(email);
                 return { success: true, email, message: 'Pro verified successfully via verification key!' };
             }
-
-            return { success: false, error: 'Invalid verification key. Please check your key and try again.' };
+            return { success: false, error: 'Invalid verification key.' };
         },
 
         // ---- Admin API ----
 
-        // Check if current session user is admin
         isAdmin() {
             try {
                 const session = getSession();
                 if (!session || !session.email) return false;
+                if (USE_API) {
+                    // Admin status is determined by server session
+                    const token = getSessionToken();
+                    // We cache this from the login response or verify-session
+                    return localStorage.getItem('srtSnap_isAdmin') === 'true';
+                }
                 if (!window.ADMIN_CONFIG) return false;
                 return session.email.toLowerCase().trim() === window.ADMIN_CONFIG.email.toLowerCase().trim();
             } catch { return false; }
         },
 
-        // Get admin Pro toggle status
         getAdminProToggle() {
             try {
                 if (!window.ADMIN_CONFIG) return null;
@@ -345,7 +346,6 @@ const AuthSystem = (() => {
             } catch { return null; }
         },
 
-        // Toggle admin Pro status (persisted to localStorage override)
         adminTogglePro() {
             const current = localStorage.getItem('srtSnap_adminProOverride');
             const newVal = current === 'true' ? 'false' : 'true';
@@ -353,7 +353,6 @@ const AuthSystem = (() => {
             return newVal === 'true';
         },
 
-        // Get effective admin Pro status (config + override)
         isAdminProEffective() {
             const override = localStorage.getItem('srtSnap_adminProOverride');
             if (override === 'true') return true;
@@ -363,8 +362,9 @@ const AuthSystem = (() => {
 
         // Check if current session has Pro
         isPro() {
-            // Check 0: Admin Pro status (config toggle + override)
             const session = getSession();
+            
+            // Admin Pro check
             if (session && session.email) {
                 try {
                     if (window.ADMIN_CONFIG &&
@@ -377,23 +377,15 @@ const AuthSystem = (() => {
                 } catch { }
             }
 
-            // Check 1: Session-based Pro flag (for backward compatibility)
             const pro = getProLicense();
             if (pro) return true;
-
-            // Check 2: Legacy localStorage flag
             if (localStorage.getItem('isProUser') === 'true') return true;
-
-            // Check 3: Session must exist (re-use session from check 0)
             if (!session) return false;
-
-            // Check 4: If session email matches a Pro license
             if (pro && pro.email === session.email) return true;
 
             return false;
         },
 
-        // Get Pro license info
         getLicenseInfo() {
             const pro = getProLicense();
             if (pro) return pro;
@@ -403,22 +395,46 @@ const AuthSystem = (() => {
             return null;
         },
 
-        // Check if editor should be accessible
         canAccessEditor() {
             return this.isPro();
         },
 
         // Init — check auth state on page load
-        init() {
-            const session = getSession();
-            const isPro = this.isPro();
+        async init() {
+            const localSession = getSession();
+            const token = getSessionToken();
 
-            // Migrate legacy Pro flag to new system
+            // Migrate legacy Pro flag
             if (localStorage.getItem('isProUser') === 'true' && !getProLicense()) {
                 saveProLicense('legacy@local', 'LEGACY-MIGRATED');
             }
 
-            return { loggedIn: !!session, isPro };
+            // If using API, verify session with server
+            if (USE_API && token) {
+                const result = await apiPost('verify-session', { sessionToken: token });
+                if (result.valid) {
+                    // Update local session with server data
+                    saveSession(result.email, token);
+                    if (result.isAdmin) {
+                        localStorage.setItem('srtSnap_isAdmin', 'true');
+                    } else {
+                        localStorage.removeItem('srtSnap_isAdmin');
+                    }
+                    // If user has Pro on server, sync it locally
+                    if (result.isPro && !getProLicense()) {
+                        saveProLicense(result.email, 'SERVER-SYNCED');
+                    }
+                    return { loggedIn: true, isPro: result.isPro || this.isPro() };
+                } else {
+                    // Session expired or invalid
+                    clearSession();
+                    localStorage.removeItem('srtSnap_isAdmin');
+                    return { loggedIn: false, isPro: false };
+                }
+            }
+
+            const isPro = this.isPro();
+            return { loggedIn: !!localSession, isPro };
         }
     };
 })();

@@ -1,0 +1,22 @@
+# =============================================
+# wrangler.toml — Cloudflare Pages Configuration
+# =============================================
+name = "srt-snap"
+compatibility_date = "2024-01-01"
+
+# =============================================
+# Cloudflare Pages Configuration
+# pages_build_output_dir tells Wrangler where
+# the built static files are. Since this is
+# a static SPA, we point to root.
+# =============================================
+pages_build_output_dir = "."
+
+# =============================================
+# KV Namespace Binding
+# Used by Pages Functions for storing user
+# accounts, sessions, and license keys.
+# =============================================
+[[kv_namespaces]]
+binding = "SRT_SNAP_DATA"
+id = "7167f6fe24444addbea4ffa8e2857b82"

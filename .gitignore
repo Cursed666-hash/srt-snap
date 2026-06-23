@@ -55,6 +55,9 @@ src/secret-config.js
 .DS_Store
 Thumbs.db
 
+# Wrangler/Cloudflare
+.wrangler/
+
 # SRT Editor specific
 *.srt
 !sample.srt

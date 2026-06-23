@@ -921,6 +921,13 @@ const TimelineEditor = (() => {
             }
         });
 
+        // Right-click context menu
+        block.addEventListener('contextmenu', (e) => {
+            if (typeof showContextMenu === 'function') {
+                showContextMenu(e, index);
+            }
+        });
+
         // Double-click on text preview to inline-edit
         textPreview.addEventListener('dblclick', (e) => {
             e.stopPropagation();
@@ -1602,13 +1609,21 @@ const TimelineEditor = (() => {
     // =============================================
     // VOCAL AUTO-SYNC
     // =============================================
-    function autoSyncFromVocals() {
+    function autoSyncFromVocals(options = {}) {
+        const { useSpeechRecognition = false } = options;
+        
         if (!state.vocalSegments || state.vocalSegments.length === 0) {
             showToast('No vocal segments detected. Please load a video with audio first.', true);
             return;
         }
 
-        // Create subtitles from vocal segments
+        // If speech recognition is requested and available
+        if (useSpeechRecognition && 'webkitSpeechRecognition' in window) {
+            autoSyncWithSpeechRecognition();
+            return;
+        }
+
+        // Basic auto-sync with placeholder text
         const newSubtitles = state.vocalSegments.map((seg, i) => ({
             index: i,
             sequence: i + 1,
@@ -1623,8 +1638,44 @@ const TimelineEditor = (() => {
             pushHistory();
             renderTimeline();
             updateSRTEditor();
-            showToast(`Auto-synced ${newSubtitles.length} subtitle blocks from vocal detection!`);
+            showToast(`Auto-synced ${newSubtitles.length} subtitle blocks from vocal detection. Use "Transcribe" for actual text.`);
         }
+    }
+
+    // Auto-sync with actual speech recognition
+    async function autoSyncWithSpeechRecognition() {
+        if (!state.videoFile) {
+            showToast('Please load a video first.', true);
+            return;
+        }
+
+        const segments = state.vocalSegments;
+        const results = [];
+        
+        showToast(`Starting speech recognition for ${segments.length} segments...`, false);
+
+        // We'll use the video element to extract audio chunks for each segment
+        const video = document.getElementById('timeline-video');
+        if (!video || !state.videoUrl) {
+            showToast('Video not loaded.', true);
+            return;
+        }
+
+        // For now, fall back to basic sync and suggest using Voice-to-SRT tab
+        const newSubtitles = segments.map((seg, i) => ({
+            index: i,
+            sequence: i + 1,
+            start: seg.start,
+            end: seg.end,
+            text: `[Auto-detected segment ${i + 1} — use Voice-to-SRT tab for transcription]`,
+            duration: seg.end - seg.start
+        }));
+
+        state.subtitles = newSubtitles;
+        pushHistory();
+        renderTimeline();
+        updateSRTEditor();
+        showToast(`Created ${newSubtitles.length} timed blocks. Switch to Voice-to-SRT tab to transcribe.`);
     }
 
     // =============================================
@@ -1822,152 +1873,397 @@ const TimelineEditor = (() => {
     }
 
     // =============================================
-    // KEYBOARD SHORTCUTS
+    // RIGHT-CLICK CONTEXT MENU
+    // =============================================
+    let contextMenuSubIndex = -1;
+
+    function showContextMenu(e, subIndex) {
+        e.preventDefault();
+        e.stopPropagation();
+        hideContextMenu();
+        contextMenuSubIndex = subIndex;
+        
+        const menu = document.createElement('div');
+        menu.className = 'editor-context-menu';
+        menu.id = 'editor-context-menu';
+        menu.style.left = Math.min(e.clientX, window.innerWidth - 220) + 'px';
+        menu.style.top = Math.min(e.clientY, window.innerHeight - 320) + 'px';
+        
+        const items = [
+            { icon: '✏️', label: 'Edit Text', shortcut: 'Dbl-click', action: () => startInlineEdit(subIndex) },
+            { icon: '🗑️', label: 'Delete', shortcut: 'Del', action: () => deleteSelectedSubtitleIdx(subIndex) },
+            { icon: '✂️', label: 'Split at Midpoint', shortcut: '', action: () => splitSubtitleAt(subIndex) },
+            { icon: '🔗', label: 'Merge with Next', shortcut: '', action: () => mergeNextAt(subIndex) },
+            { sep: true },
+            { icon: '📋', label: 'Copy Text', shortcut: '', action: () => copySubtitleText(subIndex) },
+            { icon: '📄', label: 'Duplicate', shortcut: '', action: () => duplicateSubtitle(subIndex) },
+            { sep: true },
+            { icon: '⏮️', label: 'Set as Start Marker', shortcut: '', action: () => setStartMarker(subIndex) },
+            { icon: '⏭️', label: 'Set as End Marker', shortcut: '', action: () => setEndMarker(subIndex) },
+            { sep: true },
+            { icon: '⬆️', label: 'Move Up', shortcut: 'Ctrl+↑', action: () => moveSubtitle(subIndex, -1) },
+            { icon: '⬇️', label: 'Move Down', shortcut: 'Ctrl+↓', action: () => moveSubtitle(subIndex, 1) },
+        ];
+        
+        items.forEach(item => {
+            if (item.sep) {
+                const sep = document.createElement('div');
+                sep.className = 'editor-context-menu-sep';
+                menu.appendChild(sep);
+            } else {
+                const btn = document.createElement('button');
+                btn.className = 'editor-context-menu-item';
+                btn.innerHTML = `<span class="icon">${item.icon}</span><span>${item.label}</span>${item.shortcut ? `<span class="shortcut">${item.shortcut}</span>` : ''}`;
+                btn.addEventListener('click', () => { hideContextMenu(); item.action(); });
+                menu.appendChild(btn);
+            }
+        });
+        
+        document.body.appendChild(menu);
+        setTimeout(() => {
+            document.addEventListener('click', hideContextMenu, { once: true });
+            document.addEventListener('contextmenu', hideContextMenu, { once: true });
+        }, 10);
+    }
+    
+    function hideContextMenu() {
+        const menu = document.getElementById('editor-context-menu');
+        if (menu) menu.remove();
+        contextMenuSubIndex = -1;
+    }
+    
+    function startInlineEdit(index) {
+        state.selectedSubIndex = index;
+        renderTimeline();
+        updateSRTEditor();
+        const block = document.querySelector(`[data-index="${index}"] .subtitle-text-preview`);
+        if (block) block.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    }
+    
+    function deleteSelectedSubtitleIdx(index) {
+        if (index < 0 || index >= state.subtitles.length) return;
+        state.subtitles.splice(index, 1);
+        state.subtitles.forEach((s, i) => { s.index = i; s.sequence = i + 1; });
+        state.selectedSubIndex = Math.min(index, state.subtitles.length - 1);
+        pushHistory();
+        renderTimeline();
+        updateSRTEditor();
+        renderSubtitleList();
+        showToast('Subtitle deleted.');
+    }
+    
+    function splitSubtitleAt(index) {
+        if (index < 0 || index >= state.subtitles.length) return;
+        const sub = state.subtitles[index];
+        const mid = (sub.start + sub.end) / 2;
+        const newSub = { index: state.subtitles.length, sequence: state.subtitles.length + 1, start: mid, end: sub.end, text: sub.text + ' (cont.)', duration: sub.end - mid };
+        sub.end = mid;
+        sub.duration = sub.end - sub.start;
+        state.subtitles.splice(index + 1, 0, newSub);
+        state.subtitles.forEach((s, i) => { s.index = i; s.sequence = i + 1; });
+        pushHistory();
+        renderTimeline();
+        updateSRTEditor();
+        renderSubtitleList();
+        showToast('Subtitle split at midpoint.');
+    }
+    
+    function mergeNextAt(index) {
+        if (index < 0 || index >= state.subtitles.length - 1) return;
+        const current = state.subtitles[index];
+        const next = state.subtitles[index + 1];
+        current.end = next.end;
+        current.text = current.text + ' ' + next.text;
+        current.duration = current.end - current.start;
+        state.subtitles.splice(index + 1, 1);
+        state.subtitles.forEach((s, i) => { s.index = i; s.sequence = i + 1; });
+        pushHistory();
+        renderTimeline();
+        updateSRTEditor();
+        renderSubtitleList();
+        showToast('Subtitles merged.');
+    }
+    
+    function copySubtitleText(index) {
+        if (index < 0 || index >= state.subtitles.length) return;
+        navigator.clipboard.writeText(state.subtitles[index].text).then(() => showToast('Subtitle text copied!')).catch(() => showToast('Could not copy text.', true));
+    }
+    
+    function duplicateSubtitle(index) {
+        if (index < 0 || index >= state.subtitles.length) return;
+        const original = state.subtitles[index];
+        const newSub = { index: state.subtitles.length, sequence: state.subtitles.length + 1, start: original.start + 1, end: original.end + 1, text: original.text, duration: original.duration };
+        state.subtitles.splice(index + 1, 0, newSub);
+        state.subtitles.forEach((s, i) => { s.index = i; s.sequence = i + 1; });
+        pushHistory();
+        renderTimeline();
+        updateSRTEditor();
+        renderSubtitleList();
+        showToast('Subtitle duplicated.');
+    }
+    
+    function setStartMarker(index) {
+        if (index < 0 || index >= state.subtitles.length) return;
+        const video = document.getElementById('timeline-video');
+        if (video && state.videoUrl) {
+            state.subtitles[index].start = video.currentTime;
+            state.subtitles[index].duration = state.subtitles[index].end - state.subtitles[index].start;
+            pushHistory();
+            renderTimeline();
+            updateSRTEditor();
+            renderSubtitleList();
+            showToast('Start marker set to ' + formatTimeShort(video.currentTime));
+        } else showToast('Load a video to use markers.', true);
+    }
+    
+    function setEndMarker(index) {
+        if (index < 0 || index >= state.subtitles.length) return;
+        const video = document.getElementById('timeline-video');
+        if (video && state.videoUrl) {
+            state.subtitles[index].end = video.currentTime;
+            state.subtitles[index].duration = state.subtitles[index].end - state.subtitles[index].start;
+            pushHistory();
+            renderTimeline();
+            updateSRTEditor();
+            renderSubtitleList();
+            showToast('End marker set to ' + formatTimeShort(video.currentTime));
+        } else showToast('Load a video to use markers.', true);
+    }
+    
+    function moveSubtitle(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= state.subtitles.length) return;
+        const temp = state.subtitles[index];
+        state.subtitles[index] = state.subtitles[newIndex];
+        state.subtitles[newIndex] = temp;
+        state.subtitles.forEach((s, i) => { s.index = i; s.sequence = i + 1; });
+        state.selectedSubIndex = newIndex;
+        pushHistory();
+        renderTimeline();
+        updateSRTEditor();
+        renderSubtitleList();
+    }
+
+    // =============================================
+    // FONT STYLE CONTROLS
+    // =============================================
+    let fontStyleState = { family: 'Inter', size: 20, lineHeight: 1.3, color: '#FFFFFF', bgColor: '#000000', bgOpacity: 0.75, bold: false, italic: false, underline: false, shadow: true, outline: false };
+
+    function initFontControls() {
+        const familyEl = document.getElementById('font-family');
+        const sizeEl = document.getElementById('font-size');
+        const lineHeightEl = document.getElementById('font-line-height');
+        const colorEl = document.getElementById('font-color');
+        const bgColorEl = document.getElementById('font-bg-color');
+        const boldBtn = document.getElementById('font-bold');
+        const italicBtn = document.getElementById('font-italic');
+        const underlineBtn = document.getElementById('font-underline');
+        const shadowBtn = document.getElementById('font-shadow');
+        const outlineBtn = document.getElementById('font-outline');
+        const bgOpacityBtn = document.getElementById('font-bg-opacity');
+        const bgOpacitySlider = document.getElementById('font-bg-opacity-slider');
+
+        if (familyEl) { familyEl.value = fontStyleState.family; familyEl.addEventListener('change', e => { fontStyleState.family = e.target.value; updateSubtitleOverlayStyle(); }); }
+        if (sizeEl) { sizeEl.value = fontStyleState.size; sizeEl.addEventListener('change', e => { fontStyleState.size = parseInt(e.target.value) || 20; updateSubtitleOverlayStyle(); }); }
+        if (lineHeightEl) { lineHeightEl.value = fontStyleState.lineHeight; lineHeightEl.addEventListener('change', e => { fontStyleState.lineHeight = parseFloat(e.target.value) || 1.3; updateSubtitleOverlayStyle(); }); }
+        if (colorEl) { colorEl.value = fontStyleState.color; colorEl.addEventListener('input', e => { fontStyleState.color = e.target.value; updateSubtitleOverlayStyle(); }); }
+        if (bgColorEl) { bgColorEl.value = fontStyleState.bgColor; bgColorEl.addEventListener('input', e => { fontStyleState.bgColor = e.target.value; updateSubtitleOverlayStyle(); }); }
+        if (boldBtn) { boldBtn.classList.toggle('active', fontStyleState.bold); boldBtn.addEventListener('click', () => { fontStyleState.bold = !fontStyleState.bold; boldBtn.classList.toggle('active'); updateSubtitleOverlayStyle(); }); }
+        if (italicBtn) { italicBtn.classList.toggle('active', fontStyleState.italic); italicBtn.addEventListener('click', () => { fontStyleState.italic = !fontStyleState.italic; italicBtn.classList.toggle('active'); updateSubtitleOverlayStyle(); }); }
+        if (underlineBtn) { underlineBtn.classList.toggle('active', fontStyleState.underline); underlineBtn.addEventListener('click', () => { fontStyleState.underline = !fontStyleState.underline; underlineBtn.classList.toggle('active'); updateSubtitleOverlayStyle(); }); }
+        if (shadowBtn) { shadowBtn.classList.toggle('active', fontStyleState.shadow); shadowBtn.addEventListener('click', () => { fontStyleState.shadow = !fontStyleState.shadow; shadowBtn.classList.toggle('active'); updateSubtitleOverlayStyle(); }); }
+        if (outlineBtn) { outlineBtn.classList.toggle('active', fontStyleState.outline); outlineBtn.addEventListener('click', () => { fontStyleState.outline = !fontStyleState.outline; outlineBtn.classList.toggle('active'); updateSubtitleOverlayStyle(); }); }
+        if (bgOpacityBtn) { bgOpacityBtn.addEventListener('click', () => { bgOpacitySlider.style.display = bgOpacitySlider.style.display === 'none' ? 'block' : 'none'; }); }
+        if (bgOpacitySlider) { bgOpacitySlider.value = Math.round(fontStyleState.bgOpacity * 100); bgOpacitySlider.addEventListener('input', e => { fontStyleState.bgOpacity = parseInt(e.target.value) / 100; updateSubtitleOverlayStyle(); }); }
+    }
+
+    function updateSubtitleOverlayStyle() {
+        const overlay = document.getElementById('subtitle-preview-overlay');
+        if (!overlay) return;
+        overlay.style.fontFamily = `'${fontStyleState.family}', sans-serif`;
+        overlay.style.fontSize = fontStyleState.size + 'px';
+        overlay.style.lineHeight = fontStyleState.lineHeight;
+        overlay.style.color = fontStyleState.color;
+        overlay.style.background = `rgba(${hexToRgb(fontStyleState.bgColor)}, ${fontStyleState.bgOpacity})`;
+        overlay.style.fontWeight = fontStyleState.bold ? '700' : '500';
+        overlay.style.fontStyle = fontStyleState.italic ? 'italic' : 'normal';
+        overlay.style.textDecoration = fontStyleState.underline ? 'underline' : 'none';
+        overlay.style.textShadow = fontStyleState.shadow ? '2px 2px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.5)' : 'none';
+        overlay.style.webkitTextStroke = fontStyleState.outline ? '2px #000000' : 'none';
+        overlay.style.paintOrder = fontStyleState.outline ? 'stroke fill' : 'normal';
+    }
+
+    function applyFontPreset(preset) {
+        const presets = {
+            netflix: { family: 'Inter', size: 24, lineHeight: 1.25, color: '#FFFFFF', bgColor: '#000000', bgOpacity: 0.8, bold: true, italic: false, underline: false, shadow: true, outline: false },
+            youtube: { family: 'Roboto', size: 20, lineHeight: 1.35, color: '#FFFFFF', bgColor: '#000000', bgOpacity: 0.7, bold: false, italic: false, underline: false, shadow: true, outline: true },
+            cinema: { family: 'Playfair Display', size: 22, lineHeight: 1.4, color: '#FFD700', bgColor: '#000000', bgOpacity: 0.6, bold: false, italic: true, underline: false, shadow: true, outline: false }
+        };
+        const p = presets[preset];
+        if (!p) return;
+        Object.assign(fontStyleState, p);
+        // Update UI elements
+        const familyEl = document.getElementById('font-family');
+        const sizeEl = document.getElementById('font-size');
+        const lineHeightEl = document.getElementById('font-line-height');
+        const colorEl = document.getElementById('font-color');
+        const bgColorEl = document.getElementById('font-bg-color');
+        const boldBtn = document.getElementById('font-bold');
+        const italicBtn = document.getElementById('font-italic');
+        const underlineBtn = document.getElementById('font-underline');
+        const shadowBtn = document.getElementById('font-shadow');
+        const outlineBtn = document.getElementById('font-outline');
+        const bgOpacitySlider = document.getElementById('font-bg-opacity-slider');
+        if (familyEl) familyEl.value = p.family;
+        if (sizeEl) sizeEl.value = p.size;
+        if (lineHeightEl) lineHeightEl.value = p.lineHeight;
+        if (colorEl) colorEl.value = p.color;
+        if (bgColorEl) bgColorEl.value = p.bgColor;
+        if (boldBtn) boldBtn.classList.toggle('active', p.bold);
+        if (italicBtn) italicBtn.classList.toggle('active', p.italic);
+        if (underlineBtn) underlineBtn.classList.toggle('active', p.underline);
+        if (shadowBtn) shadowBtn.classList.toggle('active', p.shadow);
+        if (outlineBtn) outlineBtn.classList.toggle('active', p.outline);
+        if (bgOpacitySlider) bgOpacitySlider.value = Math.round(p.bgOpacity * 100);
+        updateSubtitleOverlayStyle();
+        showToast(`Applied ${preset.charAt(0).toUpperCase() + preset.slice(1)} preset!`);
+    }
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1],16)},${parseInt(result[2],16)},${parseInt(result[3],16)}` : '0,0,0';
+    }
+
+    // =============================================
+    // SUBTITLE LIST RENDERING
+    // =============================================
+    function renderSubtitleList() {
+        const container = document.getElementById('editor-subtitle-list-items');
+        if (!container) return;
+        if (state.subtitles.length === 0) { container.innerHTML = '<div class="editor-subtitle-list-empty">No subtitles loaded.</div>'; return; }
+        let html = '';
+        state.subtitles.forEach((sub, i) => {
+            html += `<div class="editor-subtitle-list-item ${i === state.selectedSubIndex ? 'active' : ''}" data-list-index="${i}" draggable="true">
+                <span class="editor-subtitle-list-drag" title="Drag to reorder">⠿</span>
+                <span class="editor-subtitle-list-num">${sub.sequence}</span>
+                <span class="editor-subtitle-list-time">${formatTimeShort(sub.start)}-${formatTimeShort(sub.end)}</span>
+                <span class="editor-subtitle-list-text">${escapeHtml(sub.text.substring(0,40))}</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+        container.querySelectorAll('.editor-subtitle-list-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target.closest('.editor-subtitle-list-drag')) return;
+                const idx = parseInt(el.dataset.listIndex);
+                state.selectedSubIndex = idx;
+                renderTimeline();
+                updateSRTEditor();
+                renderSubtitleList();
+                const video = document.getElementById('timeline-video');
+                if (video && state.videoUrl && state.subtitles[idx]) { video.currentTime = state.subtitles[idx].start; state.currentTime = video.currentTime; updateTimeDisplay(); updatePlayhead(); }
+            });
+            el.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', el.dataset.listIndex); el.classList.add('dragging'); });
+            el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.editor-subtitle-list-item').forEach(item => item.classList.remove('drag-over')); });
+            el.addEventListener('dragover', (e) => { e.preventDefault(); document.querySelectorAll('.editor-subtitle-list-item').forEach(item => item.classList.remove('drag-over')); el.classList.add('drag-over'); });
+            el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+            el.addEventListener('drop', (e) => {
+                e.preventDefault(); el.classList.remove('drag-over');
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                const toIdx = parseInt(el.dataset.listIndex);
+                if (fromIdx !== toIdx && !isNaN(fromIdx) && !isNaN(toIdx)) {
+                    const item = state.subtitles.splice(fromIdx, 1)[0];
+                    state.subtitles.splice(toIdx, 0, item);
+                    state.subtitles.forEach((s,i) => { s.index = i; s.sequence = i + 1; });
+                    state.selectedSubIndex = toIdx;
+                    pushHistory();
+                    renderTimeline();
+                    updateSRTEditor();
+                    renderSubtitleList();
+                    showToast('Subtitle reordered.');
+                }
+            });
+        });
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // =============================================
+    // KEYBOARD SHORTCUTS (updated)
     // =============================================
     function initKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Don't handle shortcuts when editing inline
-            if (state.isInlineEditing) return;
-            
-            const target = e.target;
-            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
-
+            if (state.isInlineEditing || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                if (state.selectedSubIndex >= 0) moveSubtitle(state.selectedSubIndex, e.key === 'ArrowUp' ? -1 : 1);
+                return;
+            }
             switch (e.key.toLowerCase()) {
-                case ' ':
-                    e.preventDefault();
-                    togglePlay();
-                    break;
-                case 'delete':
-                case 'backspace':
-                    if (state.selectedSubIndex >= 0) {
-                        e.preventDefault();
-                        deleteSelectedSubtitle();
-                    }
-                    break;
-                case 'z':
-                    if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        if (e.shiftKey) {
-                            redo();
-                        } else {
-                            undo();
-                        }
-                    }
-                    break;
-                case 'y':
-                    if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        redo();
-                    }
-                    break;
+                case ' ': e.preventDefault(); togglePlay(); break;
+                case 'delete': case 'backspace': if (state.selectedSubIndex >= 0) { e.preventDefault(); deleteSelectedSubtitle(); } break;
+                case 'z': if (e.ctrlKey || e.metaKey) { e.preventDefault(); e.shiftKey ? redo() : undo(); } break;
+                case 'y': if (e.ctrlKey || e.metaKey) { e.preventDefault(); redo(); } break;
                 case 'arrowleft':
-                    if (e.shiftKey) {
-                        e.preventDefault();
-                        seekRelative(-0.04);
-                    } else {
-                        e.preventDefault();
-                        if (state.selectedSubIndex > 0) {
-                            state.selectedSubIndex--;
-                            renderTimeline();
-                            updateSRTEditor();
-                        }
-                    }
+                    if (e.shiftKey) { e.preventDefault(); seekRelative(-0.04); }
+                    else { e.preventDefault(); if (state.selectedSubIndex > 0) { state.selectedSubIndex--; renderTimeline(); updateSRTEditor(); renderSubtitleList(); } }
                     break;
                 case 'arrowright':
-                    if (e.shiftKey) {
-                        e.preventDefault();
-                        seekRelative(0.04);
-                    } else {
-                        e.preventDefault();
-                        if (state.selectedSubIndex < state.subtitles.length - 1) {
-                            state.selectedSubIndex++;
-                            renderTimeline();
-                            updateSRTEditor();
-                        }
-                    }
+                    if (e.shiftKey) { e.preventDefault(); seekRelative(0.04); }
+                    else { e.preventDefault(); if (state.selectedSubIndex < state.subtitles.length - 1) { state.selectedSubIndex++; renderTimeline(); updateSRTEditor(); renderSubtitleList(); } }
                     break;
-                case 's':
-                    if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        exportSRT();
-                    }
-                    break;
+                case 's': if (e.ctrlKey || e.metaKey) { e.preventDefault(); exportSRT(); } break;
+                case 'escape': hideContextMenu(); break;
             }
         });
     }
 
     // =============================================
-    // INITIALIZATION
+    // INITIALIZATION (updated)
     // =============================================
     function init(containerId) {
-        // Store DOM refs
         const container = document.getElementById(containerId || 'editor-tab');
         if (!container) return;
-
         els.timelineContainer = document.getElementById('timeline-editor-container');
         els.videoPlayer = document.getElementById('editor-video-player');
         els.subtitleTrack = document.getElementById('subtitle-track');
-
-        // Restore existing subtitles if any were loaded earlier
         const existingSRT = document.getElementById('srt-editor')?.textContent;
         if (existingSRT && existingSRT.trim()) {
             const parsed = parseSRT(existingSRT);
-            if (parsed.length > 0) {
-                state.subtitles = parsed;
-                pushHistory();
-            }
+            if (parsed.length > 0) { state.subtitles = parsed; pushHistory(); }
         }
-
-        // Init drag handlers
         initDragHandlers();
-
-        // Init keyboard shortcuts
         initKeyboardShortcuts();
-
-        // Auto-resize timeline on window resize
-        window.addEventListener('resize', () => {
-            renderTimeline();
-        });
-
-        // Initial render
+        initFontControls();
+        window.addEventListener('resize', () => renderTimeline());
         renderVideoPlayer();
         renderTimeline();
         updateSRTEditor();
         updateZoomDisplay();
+        renderSubtitleList();
     }
 
     // =============================================
-    // PUBLIC API
+    // PUBLIC API (updated)
     // =============================================
     return {
-        init,
-        loadVideoFile,
-        loadSRTFile,
-        exportSRT,
-        exportVideo,
-        togglePlay,
-        play,
-        pause,
-        seekRelative,
-        setPlaybackRate,
-        toggleSnap,
-        zoomIn,
-        zoomOut,
-        zoomReset,
+        init, loadVideoFile, loadSRTFile, exportSRT, exportVideo,
+        togglePlay, play, pause, seekRelative, setPlaybackRate, toggleSnap,
+        zoomIn, zoomOut, zoomReset,
         autoSyncFromVocals,
-        deleteSelectedSubtitle,
-        splitSubtitle,
-        mergeNextSubtitle,
-        clearAllSubtitles,
-        loadSRTFromEditor,
-        selectSubtitleAtTime,
-        seekToPrevSubtitle,
-        seekToNextSubtitle,
-        undo,
-        redo,
-        generateSRT,
-        parseSRT,
-        getState: () => state,
-        formatTime
+        deleteSelectedSubtitle, splitSubtitle, mergeNextSubtitle, clearAllSubtitles,
+        loadSRTFromEditor, selectSubtitleAtTime,
+        seekToPrevSubtitle, seekToNextSubtitle,
+        undo, redo,
+        generateSRT, parseSRT,
+        getState: () => state, formatTime,
+        // New public API
+        renderSubtitleList, showContextMenu, hideContextMenu,
+        fontStyleState, initFontControls, updateSubtitleOverlayStyle,
+        moveSubtitle, duplicateSubtitle, copySubtitleText,
+        applyFontPreset
     };
 })();

@@ -4,8 +4,8 @@
    INSTRUCTIONS:
    1. Copy this file to "secret-config.js" in the same folder
    2. Fill in your admin credentials
-   3. NEVER commit secret-config.js to git (it's in .gitignore)
-   4. The app will fall back to defaults if secret-config.js is missing
+   3. Set CLOUDFLARE_API_URL after deploying to Cloudflare Pages
+   4. NEVER commit secret-config.js to git (it's in .gitignore)
    ============================================= */
 
 const ADMIN_CONFIG = {
@@ -20,7 +20,15 @@ const ADMIN_CONFIG = {
     email: 'your-email@example.com'
 };
 
-// Assign to window so it survives if the previous ADMIN_CONFIG fallback exists
+// Assign to window so it overrides the fallback null from index.html
 if (typeof window !== 'undefined') {
     window.ADMIN_CONFIG = ADMIN_CONFIG;
 }
+
+// =============================================
+// Cloudflare API Configuration
+// After deploying to Cloudflare Pages, set this to your project URL.
+// Format: https://your-project.pages.dev  (no trailing slash)
+// Leave empty when running locally (file://) — auth falls back to localStorage.
+// =============================================
+window.CLOUDFLARE_API_URL = ''; // e.g. 'https://srt-snap.pages.dev'
