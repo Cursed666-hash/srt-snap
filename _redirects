@@ -1,0 +1,8 @@
+# Cloudflare Pages Redirects
+# https://developers.cloudflare.com/pages/platform/redirects/
+
+# SPA fallback — serve index.html for all routes (required for query-param routing)
+/*  /index.html  200
+
+# Canonical redirect — force naked domain / preferred URL
+# https://srt-snap.pages.dev/*  https://srt-snap.pages.dev/:splat  301
